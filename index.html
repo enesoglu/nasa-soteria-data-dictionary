@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA SOTERIA | Data Explorer</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Tree & Interaction Styles */
+        details > summary { list-style: none; cursor: pointer; transition: all 0.2s; }
+        details > summary::-webkit-details-marker { display: none; }
+        .tree-row:hover { background-color: #f1f5f9; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Badge Styles */
+        .badge { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; white-space: nowrap; }
+        .badge-target { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-feature { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+        .badge-raw { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-clean { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .badge-meta { background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden text-slate-800">
+
+    <!-- SIDEBAR -->
+    <aside class="w-80 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 shadow-2xl z-20">
+        <div class="p-6 border-b border-slate-800 bg-slate-950">
+            <div class="flex items-center gap-3 text-blue-500 mb-1">
+                <!-- Icon changed to Database -->
+                <i class="fa-solid fa-database text-2xl animate-pulse"></i>
+                <div>
+                    <!-- Combined Title -->
+                    <span class="font-bold text-sm tracking-tight text-white block leading-tight">NASA SOTERIA<br>Dataset Dictionary</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="px-4 py-3 bg-slate-900 border-b border-slate-800">
+            <div class="relative group">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors text-xs"></i>
+                <input type="text" id="search-input" placeholder="Search files or folders..." 
+                    class="w-full bg-slate-800 text-slate-200 text-xs rounded-lg pl-9 pr-3 py-2.5 border border-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500 transition-all">
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+            <button onclick="switchView('explorer')" id="nav-explorer" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group">
+                <i class="fa-solid fa-folder-tree w-5 text-center"></i>
+                <div class="text-left">
+                    <span class="font-bold text-sm block">Data Explorer</span>
+                    <span class="text-[10px] text-blue-200 opacity-80 font-normal">Original Folder Structure</span>
+                </div>
+            </button>
+            
+            <button onclick="switchView('glossary')" id="nav-glossary" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
+                <i class="fa-solid fa-book-journal-whills w-5 text-center"></i>
+                <div class="text-left">
+                    <span class="font-bold text-sm block">Glossary</span>
+                    <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Technical Terms</span>
+                </div>
+            </button>
+        </nav>
+        
+        <!-- Footer removed as requested -->
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col min-w-0 bg-white relative">
+        
+        <header class="h-16 border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-10 flex items-center justify-between px-8 shadow-sm">
+            <div>
+                <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span id="page-title">File Analysis Dashboard</span>
+                </h1>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50 relative scroll-smooth">
+            
+            <!-- VIEW: DATA EXPLORER -->
+            <div id="view-explorer" class="max-w-6xl mx-auto fade-in">
+                
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-3 mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-center justify-center text-xs">
+                    <span class="font-bold text-slate-400 mr-2 uppercase tracking-wider">Data Types:</span>
+                    <div class="flex items-center gap-2"><span class="badge badge-target">TARGET (Y)</span> <span>Label</span></div>
+                    <div class="flex items-center gap-2"><span class="badge badge-feature">FEATURE (X)</span> <span>Processed Feature</span></div>
+                    <div class="flex items-center gap-2"><span class="badge badge-clean">CLEANING</span> <span>Quality Control</span></div>
+                    <div class="flex items-center gap-2"><span class="badge badge-raw">RAW INPUT</span> <span>Raw Sensor</span></div>
+                    <div class="flex items-center gap-2"><span class="badge badge-meta">META/DOCS</span> <span>Docs & Reports</span></div>
+                </div>
+
+                <!-- Tree Container -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden min-h-[600px]">
+                    <!-- Removed s3 header bar here -->
+                    <!-- Dynamic Content -->
+                    <div class="p-6 font-mono text-sm leading-relaxed" id="tree-root"></div>
+                </div>
+            </div>
+
+            <!-- VIEW: GLOSSARY -->
+            <div id="view-glossary" class="max-w-6xl mx-auto hidden fade-in">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800">Terminology & Metrics</h2>
+                    <p class="text-slate-500 text-sm">Technical descriptions of column headers and file types.</p>
+                </div>
+                <!-- Dynamic Content -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="glossary-grid"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        /* =========================================
+           DATA CONFIGURATION (ENGLISH ONLY)
+           ========================================= */
+        
+        const fileMetadata = {
+            // Root
+            "soteria-survey-data.xlsx": {
+                desc: "Subjective Survey Data (NASA-TLX). Ground Truth for workload.",
+                tag: "target"
+            },
+            "Appendices_HC2S-SOTERIA-Study.pdf": {
+                desc: "Study Protocol, IRB Approval, and Experiment Design Docs.",
+                tag: "meta"
+            },
+
+            // Analysis
+            "Analysis_rpsa.csv": {
+                desc: "RPSA Scores (16 Questions). The main 'Label' (Y) for Situational Awareness.",
+                tag: "target"
+            },
+            "Analysis_sensorComfort.xlsx": {
+                desc: "Ratings: Comfort, Performance (0-2). Used for data cleaning/filtering.",
+                tag: "clean"
+            },
+            "Analysis_simFidelity.xlsx": {
+                desc: "Simulation Fidelity Ratings. Used for scenario weighting.",
+                tag: "clean"
+            },
+            "Analysis_total_eventEEG_metric_dataframe.csv": {
+                desc: "Processed EEG Features: 'taskLoad_index' (Workload) & 'engagement_index' (Attention).",
+                tag: "feature"
+            },
+            "Analysis_total_eventEKG_metric_dataframe.csv": {
+                desc: "Processed Cardiac Features: 'beats_per_min' (BPM) & 'hr_var' (Stress/HRV).",
+                tag: "feature"
+            },
+            "Analysis_total_eventSmarteye_metric_dataframe.csv": {
+                desc: "Processed Eye Metrics: Pupil Diameter & Gaze Variance.",
+                tag: "feature"
+            },
+            "Analysis_eeg_electrode_quality_vector.xlsx": {
+                desc: "EEG Quality Mask: 0=Bad, 2=Good signal per electrode.",
+                tag: "clean"
+            },
+            "Analysis_ekg_quality_vector.xlsx": {
+                desc: "EKG Quality Mask: Valid time windows for heart rate data.",
+                tag: "clean"
+            },
+            
+            // Synched Groups
+            "ABM": { desc: "ABM B-Alert X24 (EEG). Brainwaves & Cognitive State.", tag: "raw" },
+            "Emp_Emp": { desc: "Empatica E4 (Wrist). Physiological Sensors.", tag: "raw" },
+            "inst panel": { desc: "Instrument Panel Screens.", tag: "raw" },
+            "SmartEye": { desc: "Eye Tracking Data.", tag: "raw" },
+            "IFD_COCKPIT": { desc: "Flight Telemetry.", tag: "raw" },
+            "scenecamera": { desc: "External View Camera.", tag: "raw" },
+            "Metadata_Config": { desc: "Metadata & Configuration.", tag: "meta" },
+
+            // File Extensions / Formats
+            ".blob": {
+                desc: "Binary Data. Raw sensor signal (e.g. Brainwaves, Telemetry). Unreadable without processing.",
+                tag: "raw"
+            },
+            ".indicies": {
+                desc: "Sync Pointers. Maps raw binary data to timestamps.",
+                tag: "meta"
+            },
+            ".log": {
+                desc: "Device Log. Battery status, impedance check, and errors.",
+                tag: "meta"
+            },
+            ".instructions": {
+                desc: "Config Instructions. Startup commands for the device.",
+                tag: "meta"
+            },
+            ".ortho": {
+                desc: "Calibration Data. Reference for noise removal/de-ghosting.",
+                tag: "clean"
+            },
+            ".mjpeg": {
+                desc: "Motion JPEG Video. Lossless frame-by-frame video. Ideal for AI/OCR.",
+                tag: "raw"
+            },
+            ".timestamp": {
+                desc: "Frame Timestamps. Exact millisecond timing for video frames.",
+                tag: "meta"
+            },
+            ".thumbnails": { desc: "Preview Images.", tag: "meta" },
+            ".frames": { desc: "Frame Metadata. Total count and structure info.", tag: "meta" },
+
+            // Sub-folders & Specific Sensors
+            "_Acc": { desc: "Accelerometer. Measures arm motion.", tag: "raw" },
+            "_Bvp": { desc: "Blood Volume Pulse. Raw Heart Rate data.", tag: "raw" },
+            "_Gsr": { desc: "Galvanic Skin Response. Stress/Arousal.", tag: "feature" },
+            "_Ibi": { desc: "Inter-Beat Interval. HRV Analysis.", tag: "feature" },
+            "_Temp": { desc: "Skin Temperature.", tag: "raw" },
+            "upper_eicas": { desc: "Engine & Alerts.", tag: "raw" },
+            "pfd_fo": { desc: "First Officer's PFD.", tag: "raw" },
+            "pfd_capt": { desc: "Captain's PFD.", tag: "raw" },
+            "nav_fo": { desc: "First Officer's Nav.", tag: "raw" },
+            "nav_capt": { desc: "Captain's Nav.", tag: "raw" },
+            "knee_panel_fo": { desc: "FO Knee Panel.", tag: "raw" },
+            "SmartEye_Left_Seat_ET": { desc: "Captain Eye Tracking.", tag: "raw" },
+            "SmartEye_Right_Seat_ET": { desc: "FO Eye Tracking.", tag: "raw" },
+
+            // Metadata Files
+            "manifest.xml": { desc: "Data Schema. Columns, types, units.", tag: "meta" },
+            "sources.xml": { desc: "Hardware Config.", tag: "meta" },
+            "details.db": { desc: "Participant DB.", tag: "meta" },
+
+            // Processing Files
+            "event_vector_scenario.csv": {
+                desc: "Scenario Events: Critical event timestamps (Errors, Alarms, Stall).",
+                tag: "target"
+            },
+            "file_existence_matrix.csv": {
+                desc: "Data Integrity Matrix: Checks sensor existence (0/1).",
+                tag: "clean"
+            },
+            "smarteye_.csv": {
+                desc: "Eye Tracking: Gaze Direction, Pupil Diameter, Head Rotation.",
+                tag: "raw"
+            },
+            "abm_.csv": {
+                desc: "Processed EEG: Raw Voltages + Cognitive States (Workload, Distraction).",
+                tag: "feature"
+            },
+            "emp_acc_.csv": {
+                desc: "Empatica ACC: 3-Axis Acceleration. Arm movement intensity.",
+                tag: "raw"
+            },
+            "emp_bvp_.csv": {
+                desc: "Empatica BVP: Blood Volume Pulse. Raw optical heart data.",
+                tag: "raw"
+            },
+            "emp_gsr_.csv": {
+                desc: "Empatica GSR: Galvanic Skin Response. Stress/Arousal.",
+                tag: "feature"
+            },
+            "emp_ibi_.csv": {
+                desc: "Empatica IBI: Inter-Beat Interval. HRV analysis data.",
+                tag: "feature"
+            },
+            "emp_temp_.csv": {
+                desc: "Empatica TEMP: Skin Temperature.",
+                tag: "raw"
+            },
+            "ifd_cockpit_.csv": {
+                desc: "Flight Telemetry: Inputs (Stick, Pedal) & State (Speed, Altitude, G-Load).",
+                tag: "raw"
+            },
+
+            // Others
+            "crew_info.txt": { desc: "Demographics.", tag: "meta" },
+            "trial_settings.txt": { desc: "Scenario Map.", tag: "meta" },
+            "EventReport": { desc: "Manual Logs.", tag: "meta" },
+            "DVR_File.mp4": { 
+                desc: "Integrated flight videos: Synchronized cockpit view, instruments, and external scene in one frame.", 
+                tag: "raw" 
+            },
+            "Figures": { desc: "Checks.", tag: "meta" },
+            "eventreport.txt": { 
+                desc: "Written reports describing technical failures (e.g. Autopilot error) or operational deviations from the pilot's perspective.", 
+                tag: "meta" 
+            }
+        };
+
+        const glossaryItems = [
+            { term: ".blob (Binary Large Object)", cat: "File Format", def: "Binary file holding raw signal data (microvolts) from high-frequency devices like EEG. Unreadable without processing." },
+            { term: ".indicies", cat: "File Format", def: "Pointer file mapping raw data in blobs to timestamps for synchronization." },
+            { term: ".mjpeg", cat: "File Format", def: "Uncompressed video stream where each frame is a JPEG. Provides lossless imagery for AI analysis." },
+            { term: "GSR / EDA", cat: "Physiology", def: "Galvanic Skin Response. Conductivity increase due to micro-sweat under stress." },
+            { term: "HRV (Heart Rate Var.)", cat: "Physiology", def: "Variation in time between heartbeats. Low HRV indicates stress/fatigue." },
+            { term: "WorkloadFBDS", cat: "Feature (ABM)", def: "Mental Workload score calculated from EEG by ABM algorithms." },
+            { term: "Pupil Diameter", cat: "Feature (Eye)", def: "Pupil size. Dilates involuntarily as cognitive load increases." }
+        ];
+
+        // Hardcoded Tree Structure
+        const treeStructure = [
+            { name: "soteria-survey-data.xlsx", type: "file" },
+            { name: "Appendices_HC2S-SOTERIA-Study.pdf", type: "file" },
+            { 
+                name: "Analysis", type: "folder", children: [
+                    { name: "Analysis_rpsa.csv", type: "file" },
+                    { name: "Analysis_sensorComfort.xlsx", type: "file" },
+                    { name: "Analysis_simFidelity.xlsx", type: "file" },
+                    { name: "Analysis_total_eventEKG_metric_dataframe.csv", type: "file" },
+                    { name: "Analysis_total_eventEEG_metric_dataframe.csv", type: "file" },
+                    { name: "Analysis_total_eventSmarteye_metric_dataframe.csv", type: "file" },
+                    { name: "Analysis_eeg_electrode_quality_vector.xlsx", type: "file" },
+                    { name: "Analysis_ekg_quality_vector.xlsx", type: "file" }
+                ]
+            },
+            {
+                name: "Crew_XX [Generic Structure]", type: "folder", children: [
+                    { name: "crew_info.txt", type: "file" },
+                    { name: "trial_settings.txt", type: "file" },
+                    {
+                        name: "Synched", type: "folder", children: [
+                            {
+                                name: "[Timestamp]", type: "folder", children: [
+                                    { name: "ABM", type: "folder", children: [
+                                        { name: "ABM.blob", type: "file" },
+                                        { name: "ABM.indicies", type: "file" },
+                                        { name: "ABM.log", type: "file" },
+                                        { name: "ABM.instructions", type: "file" },
+                                        { name: "ABM.ortho", type: "file" }
+                                    ]},
+                                    { name: "Emp_Emp", type: "folder", children: [
+                                        { name: "_Acc", type: "folder", children: [
+                                            {name: "Emp_Acc.blob", type:"file"}, {name: "Emp_Acc.indicies", type:"file"}, {name: "Emp_Acc.log", type:"file"}, {name: "Emp_Acc.instructions", type:"file"}, {name: "Emp_Acc.ortho", type:"file"}
+                                        ]},
+                                        { name: "_Bvp", type: "folder", children: [
+                                            {name: "Emp_Bvp.blob", type:"file"}, {name: "Emp_Bvp.indicies", type:"file"}, {name: "Emp_Bvp.log", type:"file"}, {name: "Emp_Bvp.instructions", type:"file"}, {name: "Emp_Bvp.ortho", type:"file"}
+                                        ]},
+                                        { name: "_Gsr", type: "folder", children: [
+                                            {name: "Emp_Gsr.blob", type:"file"}, {name: "Emp_Gsr.indicies", type:"file"}, {name: "Emp_Gsr.log", type:"file"}, {name: "Emp_Gsr.instructions", type:"file"}, {name: "Emp_Gsr.ortho", type:"file"}
+                                        ]},
+                                        { name: "_Ibi", type: "folder", children: [
+                                            {name: "Emp_Ibi.blob", type:"file"}, {name: "Emp_Ibi.indicies", type:"file"}, {name: "Emp_Ibi.log", type:"file"}, {name: "Emp_Ibi.instructions", type:"file"}, {name: "Emp_Ibi.ortho", type:"file"}
+                                        ]},
+                                        { name: "_Temp", type: "folder", children: [
+                                            {name: "Emp_Temp.blob", type:"file"}, {name: "Emp_Temp.indicies", type:"file"}, {name: "Emp_Temp.log", type:"file"}, {name: "Emp_Temp.instructions", type:"file"}, {name: "Emp_Temp.ortho", type:"file"}
+                                        ]}
+                                    ]},
+                                    { name: "inst panel", type: "folder", children: [
+                                        { name: "upper_eicas", type: "folder", children: [
+                                            {name: "inst panel.upper_eicas.timestamp", type:"file"}, {name: "inst panel.upper_eicas.thumbnails", type:"file"}, {name: "inst panel.upper_eicas.mjpeg", type:"file"}, {name: "inst panel.upper_eicas.indicies", type:"file"}, {name: "inst panel.upper_eicas.frames", type:"file"}
+                                        ]},
+                                        { name: "pfd_fo", type: "folder", children: [
+                                            {name: "inst panel.pfd_fo.timestamp", type:"file"}, {name: "inst panel.pfd_fo.thumbnails", type:"file"}, {name: "inst panel.pfd_fo.mjpeg", type:"file"}, {name: "inst panel.pfd_fo.indicies", type:"file"}, {name: "inst panel.pfd_fo.frames", type:"file"}
+                                        ]},
+                                        { name: "pfd_capt", type: "folder", children: [
+                                            {name: "inst panel.pfd_capt.timestamp", type:"file"}, {name: "inst panel.pfd_capt.thumbnails", type:"file"}, {name: "inst panel.pfd_capt.mjpeg", type:"file"}, {name: "inst panel.pfd_capt.indicies", type:"file"}, {name: "inst panel.pfd_capt.frames", type:"file"}
+                                        ]},
+                                        { name: "nav_fo", type: "folder", children: [
+                                            {name: "inst panel.nav_fo.timestamp", type:"file"}, {name: "inst panel.nav_fo.thumbnails", type:"file"}, {name: "inst panel.nav_fo.mjpeg", type:"file"}, {name: "inst panel.nav_fo.indicies", type:"file"}, {name: "inst panel.nav_fo.frames", type:"file"}
+                                        ]},
+                                        { name: "nav_capt", type: "folder", children: [
+                                            {name: "inst panel.nav_capt.timestamp", type:"file"}, {name: "inst panel.nav_capt.thumbnails", type:"file"}, {name: "inst panel.nav_capt.mjpeg", type:"file"}, {name: "inst panel.nav_capt.indicies", type:"file"}, {name: "inst panel.nav_capt.frames", type:"file"}
+                                        ]},
+                                        { name: "knee_panel_fo", type: "folder", children: [
+                                            {name: "inst panel.knee_panel_fo.timestamp", type:"file"}, {name: "inst panel.knee_panel_fo.thumbnails", type:"file"}, {name: "inst panel.knee_panel_fo.mjpeg", type:"file"}, {name: "inst panel.knee_panel_fo.indicies", type:"file"}, {name: "inst panel.knee_panel_fo.frames", type:"file"}
+                                        ]}
+                                    ]},
+                                    { name: "SmartEye", type: "folder", children: [
+                                        { name: "SmartEye_Left_Seat_ET", type: "folder", children: [
+                                            {name: "SmartEye_Left.blob", type:"file"}, {name: "SmartEye_Left.indicies", type:"file"}, {name: "SmartEye_Left.log", type:"file"}, {name: "SmartEye_Left.instructions", type:"file"}, {name: "SmartEye_Left.ortho", type:"file"}
+                                        ]},
+                                        { name: "SmartEye_Right_Seat_ET", type: "folder", children: [
+                                            {name: "SmartEye_Right.blob", type:"file"}, {name: "SmartEye_Right.indicies", type:"file"}, {name: "SmartEye_Right.log", type:"file"}, {name: "SmartEye_Right.instructions", type:"file"}, {name: "SmartEye_Right.ortho", type:"file"}
+                                        ]}
+                                    ]},
+                                    { name: "IFD_COCKPIT", type: "folder", children: [
+                                        { name: "IFD_COCKPIT.blob", type: "file" },
+                                        { name: "IFD_COCKPIT.indicies", type: "file" },
+                                        { name: "IFD_COCKPIT.log", type: "file" },
+                                        { name: "IFD_COCKPIT.instructions", type: "file" },
+                                        { name: "IFD_COCKPIT.ortho", type: "file" }
+                                    ]},
+                                    { name: "scenecamera", type: "folder", children: [
+                                        { name: "scenecamera.timestamp", type: "file" },
+                                        { name: "scenecamera.thumbnails", type: "file" },
+                                        { name: "scenecamera.mjpeg", type: "file" },
+                                        { name: "scenecamera.indicies", type: "file" },
+                                        { name: "scenecamera.frames", type: "file" }
+                                    ]},
+                                    { name: "Metadata_Config", type: "folder", children: [
+                                        { name: "manifest.xml", type: "file" },
+                                        { name: "sources.xml", type: "file" },
+                                        { name: "details.db", type: "file" }
+                                    ]}
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        name: "Processing", type: "folder", children: [
+                            { name: "event_vector_scenario.csv", type: "file" },
+                            { name: "file_existence_matrix.csv", type: "file" },
+                            { name: "smarteye_.csv", type: "file" },
+                            { name: "abm_.csv", type: "file" },
+                            { name: "emp_acc_.csv", type: "file" },
+                            { name: "emp_bvp_.csv", type: "file" },
+                            { name: "emp_gsr_.csv", type: "file" },
+                            { name: "emp_ibi_.csv", type: "file" },
+                            { name: "emp_temp_.csv", type: "file" },
+                            { name: "ifd_cockpit_.csv", type: "file" }
+                        ]
+                    },
+                    {
+                        name: "Figures", type: "folder", children: [
+                            { name: "file_existence.jpg", type: "file" }
+                        ]
+                    },
+                    {
+                        name: "EventReport", type: "folder", children: [
+                            { name: "eventreport.txt", type: "file" }
+                        ]
+                    },
+                    {
+                        name: "DVR", type: "folder", children: [
+                            { name: "DVR_File.mp4", type: "file" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        /* =========================================
+           APP LOGIC & RENDERERS
+           ========================================= */
+
+        let processedTreeData = [];
+
+        function init() {
+            // Prepare initial state
+            processedTreeData = processGrouping(treeStructure);
+            
+            // Initial Render
+            renderTree(processedTreeData);
+            renderGlossary();
+
+            // Search Listener
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                if (!query) {
+                    renderTree(processedTreeData);
+                } else {
+                    const filteredData = filterTreeData(processedTreeData, query);
+                    renderTree(filteredData, true); // Expand folders on search
+                }
+            });
+        }
+
+        function getBadgeClass(tag) {
+            switch(tag) {
+                case 'target': return 'badge-target';
+                case 'feature': return 'badge-feature';
+                case 'raw': return 'badge-raw';
+                case 'clean': return 'badge-clean';
+                default: return 'badge-meta';
+            }
+        }
+
+        /* --- SEARCH & FILTER LOGIC --- */
+        
+        function filterTreeData(nodes, query) {
+            return nodes.reduce((acc, node) => {
+                const newNode = { ...node }; // Copy to preserve original structure
+                const nameMatch = node.name.toLowerCase().includes(query);
+                
+                if (node.children) {
+                    const filteredChildren = filterTreeData(node.children, query);
+                    
+                    // If children match, keep the folder
+                    if (filteredChildren.length > 0) {
+                        newNode.children = filteredChildren;
+                        acc.push(newNode);
+                    } 
+                    // UX Decision: If folder name matches, show all its content (don't filter inside)
+                    else if (nameMatch) {
+                        acc.push(node); 
+                    }
+                } else {
+                    if (nameMatch) acc.push(newNode);
+                }
+                return acc;
+            }, []);
+        }
+
+        function renderTree(nodes, expandAll = false) {
+            const container = document.getElementById('tree-root');
+            container.innerHTML = '';
+            
+            if (nodes.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-4 italic text-xs">No results found...</div>`;
+                return;
+            }
+
+            nodes.forEach(node => {
+                container.appendChild(createTreeNode(node, 0, expandAll));
+            });
+        }
+
+        // Recursively group folders if needed
+        function processGrouping(nodes) {
+            let result = [];
+            nodes.forEach(node => {
+                if(node.type === 'folder') {
+                    // Do not group specific folders like Synched, Timestamp, etc.
+                    if (node.name.includes("Synched") || node.name.includes("Timestamp") || node.name.includes("ABM") || node.name.includes("Emp_Emp") || node.name.includes("inst panel") || node.name.includes("SmartEye") || node.name.includes("IFD") || node.name.includes("scenecamera")) { 
+                         let processedChildren = processGrouping(node.children);
+                         result.push({...node, children: processedChildren});
+                    } else {
+                        let children = node.children ? processGrouping(node.children) : [];
+                        result.push({...node, children: children});
+                    }
+                } else {
+                    result.push(node);
+                }
+            });
+            return result;
+        }
+
+        function createTreeNode(node, level, expandAll) {
+            const indent = level * 24;
+            
+            if (node.type.includes('folder')) {
+                const details = document.createElement('details');
+                details.className = "group";
+                if (expandAll) details.open = true;
+                
+                const summary = document.createElement('summary');
+                summary.className = "flex items-center gap-2 py-1.5 px-2 rounded hover:bg-slate-100 tree-row";
+                summary.style.marginLeft = `${indent}px`;
+
+                let icon = "fa-folder text-yellow-400";
+                let titleClass = "font-bold text-slate-700";
+                
+                if(node.type === 'virtual_folder') {
+                    icon = "fa-layer-group text-blue-400";
+                    titleClass = "font-semibold text-blue-800";
+                }
+
+                // Add description if exists in metadata
+                let extraDesc = "";
+                if(fileMetadata[node.name]) {
+                    extraDesc = `<span class="ml-2 text-[10px] text-slate-400 italic font-normal">(${fileMetadata[node.name].desc})</span>`;
+                } else if (node.desc) {
+                    extraDesc = `<span class="ml-2 text-[10px] text-slate-400 italic font-normal">(${node.desc})</span>`;
+                }
+
+                summary.innerHTML = `
+                    <div class="w-4 text-center"><i class="fa-solid fa-chevron-right text-[10px] text-slate-300 group-open:rotate-90 transition-transform"></i></div>
+                    <i class="fa-solid ${icon}"></i>
+                    <span class="${titleClass} text-sm">${node.name}</span>
+                    ${extraDesc}
+                `;
+
+                details.appendChild(summary);
+                
+                const childrenDiv = document.createElement('div');
+                if(node.children) {
+                    node.children.forEach(child => childrenDiv.appendChild(createTreeNode(child, level + 1, expandAll)));
+                }
+                details.appendChild(childrenDiv);
+
+                return details;
+            } else {
+                const div = document.createElement('div');
+                div.className = "flex flex-col md:flex-row md:items-start py-1.5 px-2 rounded hover:bg-slate-50 tree-row gap-1 md:gap-4";
+                div.style.marginLeft = `${indent + 24}px`;
+
+                let fIcon = "fa-file text-slate-300";
+                if(node.name.includes('csv') || node.name.includes('xlsx')) fIcon = "fa-file-csv text-green-600";
+                if(node.name.includes('pdf')) fIcon = "fa-file-pdf text-red-500";
+                if(node.name.includes('mp4') || node.name.includes('.mjpeg')) fIcon = "fa-file-video text-purple-500";
+                if(node.name.includes('txt') || node.name.includes('.log')) fIcon = "fa-file-lines text-slate-400";
+                if(node.name.includes('jpg') || node.name.includes('.blob')) fIcon = "fa-database text-indigo-500";
+                if(node.name.includes('.xml') || node.name.includes('.db')) fIcon = "fa-code text-orange-500";
+
+                // Metadata Matching Algorithm
+                let meta = null;
+                
+                // 1. Exact Match
+                if (fileMetadata[node.name]) {
+                    meta = fileMetadata[node.name];
+                } 
+                
+                // 2. Extension Match
+                if (!meta) {
+                    const knownExtensions = ['.blob', '.indicies', '.log', '.instructions', '.ortho', '.mjpeg', '.timestamp', '.thumbnails', '.frames', '.xml', '.db', '.txt', '.csv', '.mp4'];
+                    for (const ext of knownExtensions) {
+                        if (node.name.endsWith(ext) && fileMetadata[ext]) {
+                            meta = fileMetadata[ext];
+                            break; 
+                        }
+                    }
+                }
+
+                // 3. Partial/Content Match
+                if (!meta) {
+                    for (const key in fileMetadata) {
+                        if (node.name.includes(key)) { 
+                            meta = fileMetadata[key];
+                            if(key.length > 2) break; 
+                        }
+                    }
+                }
+
+                let desc = meta ? meta.desc : "";
+                let tag = meta ? meta.tag : (node.name.includes('scenario') ? 'feature' : 'meta');
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 min-w-[200px] flex-shrink-0 pt-0.5">
+                        <i class="fa-solid ${fIcon}"></i>
+                        <span class="text-sm font-mono text-slate-600 truncate">${node.name}</span>
+                    </div>
+                    ${desc ? `
+                        <div class="flex items-start gap-2 animate-fade-in flex-1">
+                            <span class="badge ${getBadgeClass(tag)} mt-0.5">${tag.toUpperCase()}</span>
+                            <span class="text-xs text-slate-500 italic leading-snug">${desc}</span>
+                        </div>
+                    ` : ''}
+                `;
+                return div;
+            }
+        }
+
+        function renderGlossary() {
+            const container = document.getElementById('glossary-grid');
+            container.innerHTML = '';
+            
+            glossaryItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all";
+                let catClass = "bg-slate-100 text-slate-600";
+                if(item.cat.includes("Target")) catClass = "bg-green-100 text-green-700 border border-green-200";
+                if(item.cat.includes("Feature")) catClass = "bg-purple-100 text-purple-700 border border-purple-200";
+                if(item.cat.includes("Raw") || item.cat.includes("Telemetry")) catClass = "bg-blue-50 text-blue-700 border border-blue-100";
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${catClass}">${item.cat}</span>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-base mb-2">${item.term}</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">${item.def}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function switchView(view) {
+            document.getElementById('view-explorer').classList.add('hidden');
+            document.getElementById('view-glossary').classList.add('hidden');
+            document.getElementById('view-' + view).classList.remove('hidden');
+            
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group";
+            });
+            document.getElementById('nav-' + view).className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group";
+        }
+
+        init();
+    </script>
+</body>
+</html>
