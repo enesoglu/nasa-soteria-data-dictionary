@@ -1,178 +1,101 @@
-# NASA SOTERIA AI Data Explorer
+🚀 NASA SOTERIA AI Data Explorer
 
-## Overview
+An interactive, web-based data dictionary and file navigator designed to demystify the NASA SOTERIA (System-Wide Safety and Assurance Technologies for Aviation) dataset for AI researchers and data scientists.
 
-The **NASA SOTERIA AI Data Explorer** is an open-source, single-file HTML documentation tool designed to help researchers, data scientists, and machine learning practitioners understand the **content, structure, and semantics of the NASA SOTERIA dataset**.
+📖 Overview
 
-The NASA SOTERIA dataset is widely searched under terms such as:
+The NASA SOTERIA dataset contains massive amounts of multimodal physiological and flight telemetry data collected during pilot simulation sessions. However, its raw directory structure involves thousands of nested files, complex naming conventions (e.g., Emp_Acc.blob, ABM.indicies), and aviation-specific acronyms that can be overwhelming for machine learning practitioners.
 
-- *NASA SOTERIA dataset content*
-- *NASA SOTERIA AI data*
-- *Pilot performance machine learning dataset*
-- *Aviation safety multimodal dataset*
-- *EEG ECG flight simulation data*
-- *NASA cognitive workload dataset*
+NASA SOTERIA AI Data Explorer bridges this gap. It is a single-file HTML tool that visualizes the dataset structure, explains every file format, and defines technical terms, enabling researchers to quickly identify Features (X) and Targets (Y) for their models.
 
-This repository exists to directly address those searches by clearly explaining **what data exists, where it is located, and how it can be used for AI model development**.
+✨ Key Features
 
-> This project focuses on **dataset comprehension**, not data distribution.
+🔍 1. Interactive File Tree with Virtual Grouping
 
----
+Smart Hierarchy: Instead of listing thousands of repetitive sensor log files, the explorer intelligently groups them into logical "Virtual Folders" (e.g., Empatica E4, ABM EEG, Instrument Panel).
 
-## Purpose
+Format Explanations: Hovering over or clicking a file (like .blob or .indicies) reveals exactly what data it holds (e.g., "Binary raw microvolt signals").
 
-The NASA SOTERIA dataset contains large-scale **multimodal physiological, behavioral, and flight telemetry data** collected during high-fidelity pilot simulation experiments.  
-While the dataset is extremely valuable for AI research, its raw structure is difficult to interpret due to:
+🏷️ 2. Semantic Data Tagging
 
-- Deeply nested directory hierarchies
-- Thousands of device-specific sensor files
-- Binary formats such as `.blob` and `.indicies`
-- Aviation- and neuroscience-specific terminology
+Color-coded badges instantly categorize files based on their utility in an AI pipeline:
 
-**NASA SOTERIA AI Data Explorer** was created to solve this problem.
+<span style="color:#166534; background:#dcfce7; padding:2px 6px; border-radius:4px;">TARGET (Y)</span> : Ground truth labels (e.g., RPSA scores, Event timestamps).
 
-It enables users to quickly:
-- Identify **Features (X)** and **Targets (Y)** for machine learning
-- Understand each file type and sensor modality
-- Navigate the dataset without reading extensive NASA documentation first
+<span style="color:#6b21a8; background:#f3e8ff; padding:2px 6px; border-radius:4px;">FEATURE (X)</span> : Processed input metrics (e.g., Workload Index, Heart Rate Variability).
 
----
+<span style="color:#1e40af; background:#dbeafe; padding:2px 6px; border-radius:4px;">RAW</span> : Unprocessed sensor data (e.g., .blob streams, video files).
 
-## What This Repository Contains
+<span style="color:#9a3412; background:#ffedd5; padding:2px 6px; border-radius:4px;">CLEAN</span> : Quality masks and existence matrices for data filtering.
 
-This repository contains:
+📚 3. Integrated Aviation & Physiology Glossary
 
-- `index.html` — A standalone, interactive **NASA SOTERIA dataset dictionary**
-- Visual explanations of:
-  - Folder structure
-  - File formats
-  - Sensor modalities
-  - Processed vs raw data
-- AI-oriented semantic tagging of files
+A built-in glossary defines critical domain terms, ensuring you know the difference between:
 
-This repository **does not contain** the actual NASA SOTERIA data.
+Physiological Metrics: GSR (Galvanic Skin Response), HRV (Heart Rate Variability), Pupil Diameter.
 
----
+Flight Telemetry: PFD (Primary Flight Display), EICAS, Yoke Inputs, G-Load.
 
-## Key Features
+Cognitive States: WorkloadFBDS, Engagement Index, Distraction.
 
-### 1. Interactive Dataset Structure Explorer
+⚡ 4. Live Search & Filtering
 
-- Mirrors the official NASA SOTERIA directory layout
-- Groups thousands of repetitive sensor files into logical components
-- Provides per-file explanations directly in the interface
+Instantly search for specific file extensions (e.g., .csv), sensor names (e.g., SmartEye), or concepts.
 
-### 2. AI-Centric Data Classification
+The tree structure automatically expands to show relevant results.
 
-Each file is categorized based on its role in an AI/ML pipeline:
+📂 Understanding the Dataset Structure
 
-| Tag | Meaning |
-|---|---|
-| **TARGET (Y)** | Ground truth labels (e.g., RPSA, NASA-TLX scores, event timestamps) |
-| **FEATURE (X)** | Processed metrics usable as model inputs |
-| **RAW** | Unprocessed sensor streams and videos |
-| **CLEAN** | Quality masks and validation matrices |
-| **META** | Documentation, configuration, and manifests |
+The explorer visualizes the standardized folder structure used in the SOTERIA project:
 
-This directly supports tasks such as:
-- Cognitive workload estimation
-- Pilot performance modeling
-- Stress and attention prediction
-- Multimodal time-series learning
+Analysis/: Contains high-level CSVs used for modeling (Labels & Features).
 
----
+Crew_XX/: Root folder for specific flight sessions.
 
-### 3. Integrated Technical Glossary
+Synched/[Timestamp]/: The core data folder containing time-synchronized recordings.
 
-The explorer includes a built-in glossary covering common search terms such as:
+ABM/: EEG (Brainwave) data.
 
-- EEG workload features
-- Heart Rate Variability (HRV)
-- Galvanic Skin Response (GSR / EDA)
-- Eye-tracking metrics (pupil diameter, gaze vectors)
-- Aviation telemetry (PFD, EICAS, cockpit controls)
-- File formats: `.blob`, `.indicies`, `.mjpeg`
+Emp_Emp/: Wristband biosignals (Acc, Bvp, Gsr, Temp).
 
-This makes the dataset accessible even to researchers without an aviation background.
+SmartEye/: Eye-tracking and gaze vectors.
 
----
+IFD_COCKPIT/: Flight telemetry (Speed, Altitude, Controls).
 
-## High-Level Dataset Structure
+scenecamera/ & inst panel/: Video recordings of the cockpit.
 
-The explorer visualizes the standardized NASA SOTERIA folder hierarchy:
+Processing/: Intermediate CSV files generated from raw binaries.
 
-```
-Analysis/
-  - Model-ready features and labels (CSV, XLSX)
+EventReport/: Pilot narratives describing anomalies or errors.
 
-Crew_XX/
-  - Individual simulation sessions
-  - Subject metadata
-  - Synched multimodal recordings
+DVR/: Integrated over-the-shoulder flight videos.
 
-Synched/[Timestamp]/
-  - ABM (EEG)
-  - Empatica E4 (ECG, GSR, Temperature, Motion)
-  - SmartEye (Eye Tracking)
-  - IFD_COCKPIT (Flight Telemetry)
-  - Instrument Panel Videos
-  - Scene Camera
+🛠️ Technology Stack
 
-Processing/
-  - Time-aligned CSV files
-  - Event vectors
-  - Data existence matrices
+HTML5: Semantic structure.
 
-EventReport/
-  - Pilot-written narratives
+Tailwind CSS (CDN): Modern, responsive styling.
 
-DVR/
-  - Synchronized cockpit and external flight videos
-```
+Vanilla JavaScript: Logic for tree rendering, search, and language switching.
 
----
+FontAwesome (CDN): Icons for file types and UI elements.
 
-## Intended Audience
+Single-File Architecture: The entire tool lives in one index.html file for easy sharing and deployment.
 
-This project is intended for:
+🚀 How to Use
 
-- Machine learning researchers
-- Aviation safety analysts
-- Multimodal data scientists
-- Cognitive workload and human factors researchers
-- Graduate students working with NASA datasets
+Download the NASA_SOTERIA_Data_Explorer.html file.
 
-If you are searching for **how to use the NASA SOTERIA dataset for AI**, this tool was built for you.
+Open it in any modern web browser (Chrome, Edge, Firefox, Safari).
 
----
+Use the Sidebar to switch between the File Explorer and Glossary.
 
-## Technical Details
+Use the Search Bar to find specific data types.
 
-- Single-file HTML (no backend)
-- No build process required
-- Works offline
-- Open directly in a browser
+🗝️ Keywords & Tags
 
----
+NASA SOTERIA, Aviation Safety, Human Factors, Pilot Performance Dataset, Physiological Data, EEG Analysis, ECG/EKG, Heart Rate Variability (HRV), Galvanic Skin Response (GSR), Eye Tracking, SmartEye, ABM B-Alert, Empatica E4, Flight Simulation, Machine Learning, Data Dictionary, Metadata Explorer, Cognitive Workload, Safety-II, X-Plane, Telemetry.
 
-## Disclaimer
+⚠️ Disclaimer
 
-- This repository **does not distribute NASA SOTERIA data**
-- This is an **unofficial, independent project**
-- Not affiliated with or endorsed by NASA
-- All information is provided *as is*
-- Users must verify all details against official NASA documentation before use in safety-critical or academic work
-
----
-
-## Dataset Access
-
-To obtain the actual NASA SOTERIA dataset, users must follow **official NASA data access procedures**.  
-This repository only serves as a **documentation and visualization aid**.
-
----
-
-## License
-
-This project is provided for educational and research support purposes.  
-Refer to the repository license for usage terms.
+This tool is a documentation and visualization aid created to assist researchers in understanding the NASA SOTERIA dataset structure. It does not contain the actual dataset files (which are terabytes in size). It strictly visualizes the metadata and hierarchy.
