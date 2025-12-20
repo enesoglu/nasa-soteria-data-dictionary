@@ -56,6 +56,36 @@
         /* Scenario Status Colors */
         .badge-scenario { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .badge-cancelled { background-color: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; text-decoration: line-through; }
+
+        /* UI Component: Glossary Cards */
+        .glossary-card {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .glossary-card:hover {
+            transform: translateY(-2px);
+            border-left-color: #3b82f6;
+        }
+
+        /* UI Component: Accordion Animation */
+        details[open] summary .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        .accordion-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        /* UI Component: Code Badge */
+        .badge-code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
     </style>
 </head>
 
@@ -161,12 +191,23 @@
                 VIEW 2: Glossary 
                 Grid layout for defining technical terms.
             -->
-            <div id="view-glossary" class="max-w-6xl mx-auto hidden fade-in">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-800">Terminology & Metrics</h2>
-                    <p class="text-slate-500 text-sm">Technical descriptions of column headers and file types.</p>
+            <div id="view-glossary" class="max-w-5xl mx-auto hidden fade-in">
+
+                <!-- Section Header & Local Search -->
+                <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-slate-200 pb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Terminology</h2>
+                        <p class="text-slate-500 text-sm mt-1">Technical definitions for telemetry, biometrics, and file formats.</p>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="glossary-search" placeholder="Filter terms..."
+                               class="w-full bg-white border border-slate-200 text-sm rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm">
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="glossary-grid"></div>
+
+                <!-- Content Container (Populated via JS) -->
+                <div id="glossary-container" class="space-y-6"></div>
             </div>
 
             <!-- 
@@ -271,14 +312,53 @@
             "eventreport.txt": { desc: "Written reports describing technical failures (e.g. Autopilot error) or operational deviations from the pilot's perspective.", tag: "meta" }
         };
 
-        const glossaryItems = [
-            { term: ".blob (Binary Large Object)", cat: "File Format", def: "Binary file holding raw signal data (microvolts) from high-frequency devices like EEG. Unreadable without processing." },
-            { term: ".indicies", cat: "File Format", def: "Pointer file mapping raw data in blobs to timestamps for synchronization." },
-            { term: ".mjpeg", cat: "File Format", def: "Uncompressed video stream where each frame is a JPEG. Provides lossless imagery for AI analysis." },
-            { term: "GSR / EDA", cat: "Physiology", def: "Galvanic Skin Response. Conductivity increase due to micro-sweat under stress." },
-            { term: "HRV (Heart Rate Var.)", cat: "Physiology", def: "Variation in time between heartbeats. Low HRV indicates stress/fatigue." },
-            { term: "WorkloadFBDS", cat: "Feature (ABM)", def: "Mental Workload score calculated from EEG by ABM algorithms." },
-            { term: "Pupil Diameter", cat: "Feature (Eye)", def: "Pupil size. Dilates involuntarily as cognitive load increases." }
+        /**
+         * Glossary Data Configuration
+         * Categorized definitions for flight telemetry, physiological sensors, and system formats.
+         */
+        const glossaryData = [
+            {
+                category: "Flight Telemetry",
+                icon: "fa-plane-circle-check",
+                color: "text-blue-600",
+                items: [
+                    { term: "Angle of Attack (AoA)", code: "ALPHA / AOA", desc: "Wing-relative wind angle; primary indicator for lift and stall risk." },
+                    { term: "Calibrated Airspeed (CAS)", code: "CAS / IAS", desc: "Indicated airspeed corrected for instrument errors; used for landing reference." },
+                    { term: "Ground Speed (GS)", code: "GS / GND_SPD", desc: "Speed relative to the ground; affects stopping distance and wind calculations." },
+                    { term: "Vertical Speed (V/S)", code: "V_SPD / ROD", desc: "Rate of climb or descent; critical for stabilized approach criteria." },
+                    { term: "Glideslope Deviation", code: "GS_DEV", desc: "Vertical deviation from the ideal ILS glideslope path (dots)." },
+                    { term: "Localizer Deviation", code: "LOC_DEV", desc: "Lateral deviation from the runway centerline." },
+                    { term: "Throttle Resolver Angle", code: "TRA_1 / TRA_2", desc: "Pilot power demand lever position; manages energy state." },
+                    { term: "Control Column/Wheel", code: "COL / CW_POS", desc: "Pilot inputs for pitch and roll; indicates manual control effort." },
+                    { term: "Configuration", code: "FLAP / GEAR", desc: "State of drag/lift surfaces and landing gear." }
+                ]
+            },
+            {
+                category: "Psychophysiological Sensors",
+                icon: "fa-heart-pulse",
+                color: "text-rose-500",
+                items: [
+                    { term: "Tonic EDA / SCL", code: "eda_scl", desc: "Baseline Skin Conductance Level; indicates general arousal/stress state." },
+                    { term: "Phasic EDA / SCR", code: "eda_scr", desc: "Skin Conductance Response to immediate stimuli (e.g., ATC commands)." },
+                    { term: "Index of Cognitive Activity", code: "ICA", desc: "Pupil dilation metric independent of light reflex; measures mental workload." },
+                    { term: "Inter-Beat Interval (IBI)", code: "IBI", desc: "Time interval between heartbeats; raw source for HRV analysis." },
+                    { term: "Gaze Vector", code: "gaze_x, gaze_y", desc: "Coordinates of visual focus; determines scan pattern efficiency." },
+                    { term: "PSD (Theta/Alpha/Beta)", code: "PSD_Ch_xx", desc: "Power Spectral Density of EEG bands; correlates with fatigue and engagement." },
+                    { term: "Pupil Diameter", code: "PUPIL_DIAM", desc: "Raw pupil size; dilates involuntarily under high cognitive load." }
+                ]
+            },
+            {
+                category: "System & File Formats",
+                icon: "fa-file-code",
+                color: "text-slate-500",
+                items: [
+                    { term: ".blob (Binary Large Object)", code: "RAW BINARY", desc: "Unprocessed high-frequency signal data (e.g., EEG microvolts)." },
+                    { term: ".indicies", code: "SYNC POINTER", desc: "Pointer file mapping raw binary blobs to system timestamps." },
+                    { term: ".mjpeg (Motion JPEG)", code: "VIDEO STREAM", desc: "Lossless video stream where each frame is an independent JPEG." },
+                    { term: ".ortho", code: "CALIBRATION", desc: "Matrix for signal normalization and noise removal." },
+                    { term: ".log", code: "SYSTEM LOG", desc: "Device status logs including battery levels and impedance checks." }
+                ]
+            }
         ];
 
         /**
@@ -490,32 +570,53 @@
          * Runs on DOMContentLoaded.
          */
         function init() {
-            // Prepare data: Recursive grouping if necessary
+            // Data Preparation
             processedTreeData = processGrouping(treeStructure);
-            
-            // Initial Views Render
+
+            // Initial View Rendering
             renderTree(processedTreeData);
-            renderGlossary();
+            renderGlossary(glossaryData);
             renderScenarios();
 
-            // Event Listeners: Search Input
+            // Event Listener: Global File Search
             document.getElementById('search-input').addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
-                
+
                 if (!query) {
                     renderTree(processedTreeData);
                 } else {
                     const filteredData = filterTreeData(processedTreeData, query);
-                    renderTree(filteredData, true); // Force expand all folders on search
-                    
-                    // UX Improvement: Auto-switch to explorer view if searching
+                    renderTree(filteredData, true);
+
+                    // Auto-switch to explorer view if hidden
                     if(document.getElementById('view-explorer').classList.contains('hidden')) {
                         switchView('explorer');
                     }
                 }
             });
-        }
 
+            // Event Listener: Glossary Local Search
+            // Filters categories and expands accordions based on matches.
+            document.getElementById('glossary-search').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+
+                if (!query) {
+                    renderGlossary(glossaryData);
+                } else {
+                    // Filter categories to only include matching items
+                    const filteredGlossary = glossaryData.map(cat => {
+                        const matchingItems = cat.items.filter(item =>
+                            item.term.toLowerCase().includes(query) ||
+                            item.code.toLowerCase().includes(query) ||
+                            item.desc.toLowerCase().includes(query)
+                        );
+                        return { ...cat, items: matchingItems };
+                    }).filter(cat => cat.items.length > 0);
+
+                    renderGlossary(filteredGlossary, true); // Force expand on search
+                }
+            });
+        }
         /**
          * Resolves the CSS class for a specific metadata tag.
          * @param {string} tag - The metadata tag (e.g., 'target', 'feature')
@@ -709,28 +810,53 @@
         /**
          * Renders glossary cards into the grid container.
          */
-        function renderGlossary() {
-            const container = document.getElementById('glossary-grid');
+        function renderGlossary(data, forceExpand = false) {
+            const container = document.getElementById('glossary-container');
             container.innerHTML = '';
-            
-            glossaryItems.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all";
-                
-                // Dynamic styling based on category
-                let catClass = "bg-slate-100 text-slate-600";
-                if(item.cat.includes("Target")) catClass = "bg-green-100 text-green-700 border border-green-200";
-                if(item.cat.includes("Feature")) catClass = "bg-purple-100 text-purple-700 border border-purple-200";
-                if(item.cat.includes("Raw") || item.cat.includes("Telemetry")) catClass = "bg-blue-50 text-blue-700 border border-blue-100";
 
-                div.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${catClass}">${item.cat}</span>
+            if(data.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-12">No terms found matching your query.</div>`;
+                return;
+            }
+
+            data.forEach((cat, index) => {
+                const details = document.createElement('details');
+                details.className = "group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden";
+
+                // Expand first item by default, or all items if searching
+                if(index === 0 || forceExpand) details.open = true;
+
+                // Accordion Header
+                details.innerHTML = `
+                    <summary class="flex items-center justify-between p-5 bg-slate-50 cursor-pointer select-none hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
+                                <i class="fa-solid ${cat.icon} ${cat.color}"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-700 text-lg">${cat.category}</h3>
+                            <span class="text-xs font-mono text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full">${cat.items.length}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-slate-400 accordion-arrow transition-transform"></i>
+                    </summary>
+
+                    <!-- Accordion Body (Grid Layout) -->
+                    <div class="p-5 border-t border-slate-100 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            ${cat.items.map(item => `
+                                <div class="glossary-card p-4 rounded-lg bg-slate-50 border border-slate-100 relative group/card">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="font-bold text-slate-800 text-sm leading-tight pr-2">${item.term}</span>
+                                    </div>
+                                    <div class="mb-3">
+                                         <span class="badge-code" title="Dataset Code / Column Name">${item.code}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 leading-relaxed">${item.desc}</p>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
-                    <h3 class="font-bold text-slate-800 text-base mb-2">${item.term}</h3>
-                    <p class="text-sm text-slate-600 leading-relaxed">${item.def}</p>
                 `;
-                container.appendChild(div);
+                container.appendChild(details);
             });
         }
 
