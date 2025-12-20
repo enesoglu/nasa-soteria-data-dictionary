@@ -34,6 +34,10 @@
         .badge-raw { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-clean { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
         .badge-meta { background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+        /* Scenario Badges */
+        .badge-scenario { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-cancelled { background-color: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; text-decoration: line-through; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-slate-800">
@@ -42,10 +46,8 @@
     <aside class="w-80 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 shadow-2xl z-20">
         <div class="p-6 border-b border-slate-800 bg-slate-950">
             <div class="flex items-center gap-3 text-blue-500 mb-1">
-                <!-- Icon changed to Database -->
                 <i class="fa-solid fa-database text-2xl animate-pulse"></i>
                 <div>
-                    <!-- Combined Title -->
                     <span class="font-bold text-sm tracking-tight text-white block leading-tight">NASA SOTERIA<br>Dataset Dictionary</span>
                 </div>
             </div>
@@ -77,9 +79,17 @@
                     <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Technical Terms</span>
                 </div>
             </button>
+
+            <!-- NEW SCENARIO BUTTON -->
+            <button onclick="switchView('scenarios')" id="nav-scenarios" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
+                <i class="fa-solid fa-plane-arrival w-5 text-center"></i>
+                <div class="text-left">
+                    <span class="font-bold text-sm block">Simulation Scenarios</span>
+                    <!-- UPDATED: Description text -->
+                    <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Scenario Manifest</span>
+                </div>
+            </button>
         </nav>
-        
-        <!-- Footer removed as requested -->
     </aside>
 
     <!-- MAIN CONTENT -->
@@ -110,8 +120,6 @@
 
                 <!-- Tree Container -->
                 <div class="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden min-h-[600px]">
-                    <!-- Removed s3 header bar here -->
-                    <!-- Dynamic Content -->
                     <div class="p-6 font-mono text-sm leading-relaxed" id="tree-root"></div>
                 </div>
             </div>
@@ -126,60 +134,41 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="glossary-grid"></div>
             </div>
 
+            <!-- VIEW: SCENARIOS (NEW) -->
+            <div id="view-scenarios" class="max-w-5xl mx-auto hidden fade-in">
+                <div class="mb-8 border-b border-slate-200 pb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Experiment Scenarios (KCLT RNAV STAR)</h2>
+                    <!-- UPDATED: Context Text -->
+                    <p class="text-slate-500 text-sm mt-2">All scenarios are based on Charlotte Douglas International Airport (KCLT) arrival routes. In the SOTERIA experiments, the order of scenarios was randomized across crews to minimize learning effects.</p>
+                </div>
+                <!-- Dynamic Content -->
+                <div class="space-y-6" id="scenarios-grid"></div>
+            </div>
+
         </div>
     </main>
 
     <script>
         /* =========================================
-           DATA CONFIGURATION (ENGLISH ONLY)
+           DATA CONFIGURATION
            ========================================= */
         
         const fileMetadata = {
             // Root
-            "soteria-survey-data.xlsx": {
-                desc: "Subjective Survey Data (NASA-TLX). Ground Truth for workload.",
-                tag: "target"
-            },
-            "Appendices_HC2S-SOTERIA-Study.pdf": {
-                desc: "Study Protocol, IRB Approval, and Experiment Design Docs.",
-                tag: "meta"
-            },
+            "soteria-survey-data.xlsx": { desc: "Subjective Survey Data (NASA-TLX). Ground Truth for workload.", tag: "target" },
+            "Appendices_HC2S-SOTERIA-Study.pdf": { desc: "Study Protocol, IRB Approval, and Experiment Design Docs.", tag: "meta" },
 
             // Analysis
-            "Analysis_rpsa.csv": {
-                desc: "RPSA Scores (16 Questions). The main 'Label' (Y) for Situational Awareness.",
-                tag: "target"
-            },
-            "Analysis_sensorComfort.xlsx": {
-                desc: "Ratings: Comfort, Performance (0-2). Used for data cleaning/filtering.",
-                tag: "clean"
-            },
-            "Analysis_simFidelity.xlsx": {
-                desc: "Simulation Fidelity Ratings. Used for scenario weighting.",
-                tag: "clean"
-            },
-            "Analysis_total_eventEEG_metric_dataframe.csv": {
-                desc: "Processed EEG Features: 'taskLoad_index' (Workload) & 'engagement_index' (Attention).",
-                tag: "feature"
-            },
-            "Analysis_total_eventEKG_metric_dataframe.csv": {
-                desc: "Processed Cardiac Features: 'beats_per_min' (BPM) & 'hr_var' (Stress/HRV).",
-                tag: "feature"
-            },
-            "Analysis_total_eventSmarteye_metric_dataframe.csv": {
-                desc: "Processed Eye Metrics: Pupil Diameter & Gaze Variance.",
-                tag: "feature"
-            },
-            "Analysis_eeg_electrode_quality_vector.xlsx": {
-                desc: "EEG Quality Mask: 0=Bad, 2=Good signal per electrode.",
-                tag: "clean"
-            },
-            "Analysis_ekg_quality_vector.xlsx": {
-                desc: "EKG Quality Mask: Valid time windows for heart rate data.",
-                tag: "clean"
-            },
+            "Analysis_rpsa.csv": { desc: "RPSA Scores (16 Questions). The main 'Label' (Y) for Situational Awareness.", tag: "target" },
+            "Analysis_sensorComfort.xlsx": { desc: "Ratings: Comfort, Performance (0-2). Used for data cleaning/filtering.", tag: "clean" },
+            "Analysis_simFidelity.xlsx": { desc: "Simulation Fidelity Ratings. Used for scenario weighting.", tag: "clean" },
+            "Analysis_total_eventEEG_metric_dataframe.csv": { desc: "Processed EEG Features: 'taskLoad_index' (Workload) & 'engagement_index' (Attention).", tag: "feature" },
+            "Analysis_total_eventEKG_metric_dataframe.csv": { desc: "Processed Cardiac Features: 'beats_per_min' (BPM) & 'hr_var' (Stress/HRV).", tag: "feature" },
+            "Analysis_total_eventSmarteye_metric_dataframe.csv": { desc: "Processed Eye Metrics: Pupil Diameter & Gaze Variance.", tag: "feature" },
+            "Analysis_eeg_electrode_quality_vector.xlsx": { desc: "EEG Quality Mask: 0=Bad, 2=Good signal per electrode.", tag: "clean" },
+            "Analysis_ekg_quality_vector.xlsx": { desc: "EKG Quality Mask: Valid time windows for heart rate data.", tag: "clean" },
             
-            // Synched Groups
+            // Groups
             "ABM": { desc: "ABM B-Alert X24 (EEG). Brainwaves & Cognitive State.", tag: "raw" },
             "Emp_Emp": { desc: "Empatica E4 (Wrist). Physiological Sensors.", tag: "raw" },
             "inst panel": { desc: "Instrument Panel Screens.", tag: "raw" },
@@ -188,39 +177,18 @@
             "scenecamera": { desc: "External View Camera.", tag: "raw" },
             "Metadata_Config": { desc: "Metadata & Configuration.", tag: "meta" },
 
-            // File Extensions / Formats
-            ".blob": {
-                desc: "Binary Data. Raw sensor signal (e.g. Brainwaves, Telemetry). Unreadable without processing.",
-                tag: "raw"
-            },
-            ".indicies": {
-                desc: "Sync Pointers. Maps raw binary data to timestamps.",
-                tag: "meta"
-            },
-            ".log": {
-                desc: "Device Log. Battery status, impedance check, and errors.",
-                tag: "meta"
-            },
-            ".instructions": {
-                desc: "Config Instructions. Startup commands for the device.",
-                tag: "meta"
-            },
-            ".ortho": {
-                desc: "Calibration Data. Reference for noise removal/de-ghosting.",
-                tag: "clean"
-            },
-            ".mjpeg": {
-                desc: "Motion JPEG Video. Lossless frame-by-frame video. Ideal for AI/OCR.",
-                tag: "raw"
-            },
-            ".timestamp": {
-                desc: "Frame Timestamps. Exact millisecond timing for video frames.",
-                tag: "meta"
-            },
+            // Formats
+            ".blob": { desc: "Binary Data. Raw sensor signal (e.g. Brainwaves, Telemetry). Unreadable without processing.", tag: "raw" },
+            ".indicies": { desc: "Sync Pointers. Maps raw binary data to timestamps.", tag: "meta" },
+            ".log": { desc: "Device Log. Battery status, impedance check, and errors.", tag: "meta" },
+            ".instructions": { desc: "Config Instructions. Startup commands for the device.", tag: "meta" },
+            ".ortho": { desc: "Calibration Data. Reference for noise removal/de-ghosting.", tag: "clean" },
+            ".mjpeg": { desc: "Motion JPEG Video. Lossless frame-by-frame video. Ideal for AI/OCR.", tag: "raw" },
+            ".timestamp": { desc: "Frame Timestamps. Exact millisecond timing for video frames.", tag: "meta" },
             ".thumbnails": { desc: "Preview Images.", tag: "meta" },
             ".frames": { desc: "Frame Metadata. Total count and structure info.", tag: "meta" },
 
-            // Sub-folders & Specific Sensors
+            // Folders
             "_Acc": { desc: "Accelerometer. Measures arm motion.", tag: "raw" },
             "_Bvp": { desc: "Blood Volume Pulse. Raw Heart Rate data.", tag: "raw" },
             "_Gsr": { desc: "Galvanic Skin Response. Stress/Arousal.", tag: "feature" },
@@ -241,60 +209,24 @@
             "details.db": { desc: "Participant DB.", tag: "meta" },
 
             // Processing Files
-            "event_vector_scenario.csv": {
-                desc: "Scenario Events: Critical event timestamps (Errors, Alarms, Stall).",
-                tag: "target"
-            },
-            "file_existence_matrix.csv": {
-                desc: "Data Integrity Matrix: Checks sensor existence (0/1).",
-                tag: "clean"
-            },
-            "smarteye_.csv": {
-                desc: "Eye Tracking: Gaze Direction, Pupil Diameter, Head Rotation.",
-                tag: "raw"
-            },
-            "abm_.csv": {
-                desc: "Processed EEG: Raw Voltages + Cognitive States (Workload, Distraction).",
-                tag: "feature"
-            },
-            "emp_acc_.csv": {
-                desc: "Empatica ACC: 3-Axis Acceleration. Arm movement intensity.",
-                tag: "raw"
-            },
-            "emp_bvp_.csv": {
-                desc: "Empatica BVP: Blood Volume Pulse. Raw optical heart data.",
-                tag: "raw"
-            },
-            "emp_gsr_.csv": {
-                desc: "Empatica GSR: Galvanic Skin Response. Stress/Arousal.",
-                tag: "feature"
-            },
-            "emp_ibi_.csv": {
-                desc: "Empatica IBI: Inter-Beat Interval. HRV analysis data.",
-                tag: "feature"
-            },
-            "emp_temp_.csv": {
-                desc: "Empatica TEMP: Skin Temperature.",
-                tag: "raw"
-            },
-            "ifd_cockpit_.csv": {
-                desc: "Flight Telemetry: Inputs (Stick, Pedal) & State (Speed, Altitude, G-Load).",
-                tag: "raw"
-            },
+            "event_vector_scenario.csv": { desc: "Scenario Events: Critical event timestamps (Errors, Alarms, Stall).", tag: "target" },
+            "file_existence_matrix.csv": { desc: "Data Integrity Matrix: Checks sensor existence (0/1).", tag: "clean" },
+            "smarteye_.csv": { desc: "Eye Tracking: Gaze Direction, Pupil Diameter, Head Rotation.", tag: "raw" },
+            "abm_.csv": { desc: "Processed EEG: Raw Voltages + Cognitive States (Workload, Distraction).", tag: "feature" },
+            "emp_acc_.csv": { desc: "Empatica ACC: 3-Axis Acceleration. Arm movement intensity.", tag: "raw" },
+            "emp_bvp_.csv": { desc: "Empatica BVP: Blood Volume Pulse. Raw optical heart data.", tag: "raw" },
+            "emp_gsr_.csv": { desc: "Empatica GSR: Galvanic Skin Response. Stress/Arousal.", tag: "feature" },
+            "emp_ibi_.csv": { desc: "Empatica IBI: Inter-Beat Interval. HRV analysis data.", tag: "feature" },
+            "emp_temp_.csv": { desc: "Empatica TEMP: Skin Temperature.", tag: "raw" },
+            "ifd_cockpit_.csv": { desc: "Flight Telemetry: Inputs (Stick, Pedal) & State (Speed, Altitude, G-Load).", tag: "raw" },
 
             // Others
             "crew_info.txt": { desc: "Demographics.", tag: "meta" },
             "trial_settings.txt": { desc: "Scenario Map.", tag: "meta" },
             "EventReport": { desc: "Manual Logs.", tag: "meta" },
-            "DVR_File.mp4": { 
-                desc: "Integrated flight videos: Synchronized cockpit view, instruments, and external scene in one frame.", 
-                tag: "raw" 
-            },
+            "DVR_File.mp4": { desc: "Integrated flight videos: Synchronized cockpit view, instruments, and external scene in one frame.", tag: "raw" },
             "Figures": { desc: "Checks.", tag: "meta" },
-            "eventreport.txt": { 
-                desc: "Written reports describing technical failures (e.g. Autopilot error) or operational deviations from the pilot's perspective.", 
-                tag: "meta" 
-            }
+            "eventreport.txt": { desc: "Written reports describing technical failures (e.g. Autopilot error) or operational deviations from the pilot's perspective.", tag: "meta" }
         };
 
         const glossaryItems = [
@@ -305,6 +237,66 @@
             { term: "HRV (Heart Rate Var.)", cat: "Physiology", def: "Variation in time between heartbeats. Low HRV indicates stress/fatigue." },
             { term: "WorkloadFBDS", cat: "Feature (ABM)", def: "Mental Workload score calculated from EEG by ABM algorithms." },
             { term: "Pupil Diameter", cat: "Feature (Eye)", def: "Pupil size. Dilates involuntarily as cognitive load increases." }
+        ];
+
+        /* --- NEW SCENARIO DATA (SORTED 1-7) --- */
+        const scenariosData = [
+            {
+                id: 1,
+                code: "CHSLY FOUR",
+                title: "Traffic Compression",
+                desc: "Pilots operate in dense traffic flow. The leading aircraft slows down unexpectedly or traffic separation reduces critically.",
+                goal: "Situational Awareness and Energy Management. Requires early detection and use of speed brakes or configuration changes to maintain safe separation.",
+                active: true
+            },
+            {
+                id: 2,
+                code: "FILPZ THREE",
+                title: "Unanticipated Tailwind",
+                desc: "Encountering a much stronger tailwind than briefed on the approach line. This increases Ground Speed and makes staying on the glide path difficult.",
+                goal: "Managing high Vertical Speed (V/S), keeping engines at idle, and deciding to Go-Around if 'Stabilized Approach' criteria are lost.",
+                active: true
+            },
+            {
+                id: 3,
+                code: "BANKR TWO",
+                title: "Routine Operational Challenges",
+                desc: "Includes unexpected system warnings or ATC instruction changes during the BANKR arrival route, increasing pilot workload.",
+                goal: "Procedural compliance and task prioritization.",
+                active: true
+            },
+            {
+                id: 4,
+                code: "CANCELLED",
+                title: "Excluded Scenario",
+                desc: "This scenario was cancelled during the experiment protocol due to time constraints and is not included in the dataset.",
+                goal: "N/A",
+                active: false
+            },
+            {
+                id: 5,
+                code: "MLLET TWO",
+                title: "Wake Turbulence",
+                desc: "Approaching behind a 'Heavy' category aircraft (e.g., A330, B777). Invisible wingtip vortices cause sudden upset/shaking.",
+                goal: "Upset Recovery (regaining control) and Go-Around decision. Measures pilot 'Expectancy'.",
+                active: true
+            },
+            {
+                id: 6,
+                code: "STOCR THREE",
+                title: "Energy Mgmt & Icing Risk",
+                desc: "Scenario configured with probable icing conditions or altitude/speed constraints requiring strict energy management on the STOCR route.",
+                goal: "Timely use of Anti-ice systems and correct descent planning.",
+                active: true
+            },
+            {
+                id: 7,
+                code: "PARQR THREE",
+                title: "Familiarization (Baseline)",
+                desc: "A baseline scenario applied at the beginning of the experiment. It contains no major surprises or emergencies.",
+                goal: "Acclimatization to simulator dynamics and sensor equipment (EEG cap, glasses, etc.). Used as a reference for 'normal operations'.",
+                active: true
+            }
         ];
 
         // Hardcoded Tree Structure
@@ -324,7 +316,7 @@
                 ]
             },
             {
-                name: "Crew_XX [Generic Structure]", type: "folder", children: [
+                name: "Crew_XX [Generic Structure for Crew folder of 12]", type: "folder", children: [
                     { name: "crew_info.txt", type: "file" },
                     { name: "trial_settings.txt", type: "file" },
                     {
@@ -452,6 +444,7 @@
             // Initial Render
             renderTree(processedTreeData);
             renderGlossary();
+            renderScenarios();
 
             // Search Listener
             document.getElementById('search-input').addEventListener('input', (e) => {
@@ -461,6 +454,10 @@
                 } else {
                     const filteredData = filterTreeData(processedTreeData, query);
                     renderTree(filteredData, true); // Expand folders on search
+                    // If searching, switch to explorer to see results
+                    if(document.getElementById('view-explorer').classList.contains('hidden')) {
+                        switchView('explorer');
+                    }
                 }
             });
         }
@@ -490,7 +487,7 @@
                         newNode.children = filteredChildren;
                         acc.push(newNode);
                     } 
-                    // UX Decision: If folder name matches, show all its content (don't filter inside)
+                    // UX Decision: If folder name matches, show all its content
                     else if (nameMatch) {
                         acc.push(node); 
                     }
@@ -663,18 +660,88 @@
             });
         }
 
+        function renderScenarios() {
+            const container = document.getElementById('scenarios-grid');
+            container.innerHTML = '';
+
+            scenariosData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col md:flex-row";
+                
+                // Color Logic
+                let stripColor = "bg-blue-600";
+                if (!item.active) stripColor = "bg-slate-300";
+                if (item.id === 7) stripColor = "bg-emerald-500"; // Familiarization
+                if (item.id === 1 || item.id === 5) stripColor = "bg-amber-500"; // High Risk
+
+                div.innerHTML = `
+                    <div class="w-2 md:w-3 ${stripColor} flex-shrink-0"></div>
+                    <div class="p-6 flex-1">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-3">
+                                <span class="badge badge-scenario">Scenario ${item.id}</span>
+                                <h3 class="font-bold text-slate-800 text-lg">${item.title}</h3>
+                                ${!item.active ? '<span class="text-xs bg-slate-100 text-slate-400 px-2 py-0.5 rounded font-bold uppercase">Cancelled</span>' : ''}
+                            </div>
+                            <span class="font-mono text-xs text-slate-400">${item.code}</span>
+                        </div>
+                        
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">${item.desc}</p>
+                        
+                        ${item.active ? `
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div class="flex gap-2 items-start">
+                                <i class="fa-solid fa-crosshairs text-blue-400 mt-1 text-xs"></i>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-700 uppercase block mb-1">Target Behavior / Metric</span>
+                                    <p class="text-xs text-slate-500 leading-snug">${item.goal}</p>
+                                </div>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
         function switchView(view) {
-            document.getElementById('view-explorer').classList.add('hidden');
-            document.getElementById('view-glossary').classList.add('hidden');
-            document.getElementById('view-' + view).classList.remove('hidden');
+            // Hide all views
+            ['view-explorer', 'view-glossary', 'view-scenarios'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
             
+            // Show selected view
+            const selectedView = document.getElementById('view-' + view);
+            if (selectedView) selectedView.classList.remove('hidden');
+            
+            // Reset all buttons
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group";
             });
-            document.getElementById('nav-' + view).className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group";
+
+            // Highlight active button
+            const activeBtn = document.getElementById('nav-' + view);
+            if (activeBtn) {
+                activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group";
+            }
+
+            // Update Header Title
+            const titles = {
+                'explorer': 'File Analysis Dashboard',
+                'glossary': 'Glossary of Terms',
+                'scenarios': 'Simulation Scenarios'
+            };
+            const titleEl = document.getElementById('page-title');
+            if (titleEl) titleEl.innerText = titles[view] || 'Dashboard';
         }
 
-        init();
+        // Init
+        document.addEventListener('DOMContentLoaded', init);
+        // Fallback init if DOMContentLoaded already fired
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            init();
+        }
     </script>
 </body>
 </html>
