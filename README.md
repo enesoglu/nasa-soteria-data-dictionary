@@ -75,14 +75,7 @@ This directly supports tasks such as:
 
 ### 3. Integrated Technical Glossary
 
-The explorer includes a built-in glossary covering common search terms such as:
-
-- EEG workload features
-- Heart Rate Variability (HRV)
-- Galvanic Skin Response (GSR / EDA)
-- Eye-tracking metrics (pupil diameter, gaze vectors)
-- Aviation telemetry (PFD, EICAS, cockpit controls)
-- File formats: `.blob`, `.indicies`, `.mjpeg`
+The explorer includes a built-in glossary covering relevant aviation terms.
 
 This makes the dataset accessible even to researchers without an aviation background.
 
@@ -121,6 +114,7 @@ DVR/
   - Synchronized aircraft instruments, cockpit and external flight videos
 ```
 
+- ⚠️ **Note:** `Synched/` folder contains time-synchronized raw multimodal sensor recordings in their original device formats, whereas `Processing/` folder provides machine-learning-ready, structured feature representations derived from those raw signals.
 ---
 
 ## Technical Details
