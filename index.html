@@ -230,14 +230,14 @@
             "Appendices_HC2S-SOTERIA-Study.pdf": { desc: "Study Protocol, IRB Approval, and Experiment Design Docs.", tag: "meta" },
 
             // Analysis / Processed Data
-            "Analysis_rpsa.csv": { desc: "RPSA Scores (16 Questions). The main 'Label' (Y) for Situational Awareness.", tag: "target" },
-            "Analysis_sensorComfort.xlsx": { desc: "Ratings: Comfort, Performance (0-2). Used for data cleaning/filtering.", tag: "clean" },
-            "Analysis_simFidelity.xlsx": { desc: "Simulation Fidelity Ratings. Used for scenario weighting.", tag: "clean" },
-            "Analysis_total_eventEEG_metric_dataframe.csv": { desc: "Processed EEG Features: 'taskLoad_index' (Workload) & 'engagement_index' (Attention).", tag: "feature" },
-            "Analysis_total_eventEKG_metric_dataframe.csv": { desc: "Processed Cardiac Features: 'beats_per_min' (BPM) & 'hr_var' (Stress/HRV).", tag: "feature" },
-            "Analysis_total_eventSmarteye_metric_dataframe.csv": { desc: "Processed Eye Metrics: Pupil Diameter & Gaze Variance.", tag: "feature" },
-            "Analysis_eeg_electrode_quality_vector.xlsx": { desc: "EEG Quality Mask: 0=Bad, 2=Good signal per electrode.", tag: "clean" },
-            "Analysis_ekg_quality_vector.xlsx": { desc: "EKG Quality Mask: Valid time windows for heart rate data.", tag: "clean" },
+            "Analysis_rpsa.csv": { desc: "Subjective Situational Awareness: Contains RPSA (Real-time Probe for Situation Awareness) scores across 16 dimensions. This is a primary ground truth label for assessing pilot awareness.", tag: "target" },
+            "Analysis_sensorComfort.xlsx": { desc: "Subjective Feedback: Post-experiment ratings for Comfort, Performance, and Immersion (0-2 scale). Useful for filtering out data from uncomfortable/distracted subjects.", tag: "clean" },
+            "Analysis_simFidelity.xlsx": { desc: "Simulation Fidelity: User ratings on how realistic the simulation felt. Can be used to weight samples (e.g., giving more importance to high-fidelity sessions).", tag: "clean" },
+            "Analysis_total_eventEEG_metric_dataframe.csv": { desc: "Processed EEG Metrics: Aggregated brainwave features, specifically Task Load Index (Mental Workload) and Engagement Index (Attention/Focus) per event epoch.", tag: "feature" },
+            "Analysis_total_eventEKG_metric_dataframe.csv": { desc: "Processed Cardiac Metrics: Aggregated heart features including Beats Per Minute (BPM) and Heart Rate Variability (hr_var) used for stress and physiological arousal quantification.", tag: "feature" },
+            "Analysis_total_eventSmarteye_metric_dataframe.csv": { desc: "Processed Eye Metrics: Comprehensive visual behavior statistics including Pupil Diameter (Avg/Std), Gaze Variance, Gaze Velocity, and Head Heading features.", tag: "feature" },
+            "Analysis_eeg_electrode_quality_vector.xlsx": { desc: "CLEANING & MASK - EEG Signal Quality Mask: Matrix indicating the signal quality for each electrode (F3, Fz, etc.) per scenario. Values: 0 (Bad/Noisy), 1 (Marginal), 2 (Good).", tag: "clean" },
+            "Analysis_ekg_quality_vector.xlsx": { desc: "CLEANING & MASK - EKG Validity Intervals: Specifies the valid time windows (e.g., \"76:80\" seconds) where the heart rate signal is reliable. Crucial for excluding noisy segments during training.", tag: "clean" },
 
             // Sensors & Hardware Definitions
             "ABM": { desc: "ABM B-Alert X24 (EEG). Brainwaves & Cognitive State.", tag: "raw" },
