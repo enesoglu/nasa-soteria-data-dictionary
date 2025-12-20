@@ -4,78 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NASA SOTERIA | Data Explorer</title>
-    
-    <!-- 
-        External Dependencies 
-        - Tailwind CSS for utility-first styling
-        - Font Awesome for icons
-        - Google Fonts (Inter & JetBrains Mono)
+
+    <!--
+      DEPENDENCIES
+      - Tailwind CSS: Utility-first styling framework.
+      - Font Awesome: Iconography.
+      - Google Fonts: Inter (UI) & JetBrains Mono (Code/Data).
     -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        /* Base Settings */
+        /* --- GLOBAL STYLES --- */
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* UI Component: Custom Scrollbar 
-           Ensures a sleek look consistent with the dark sidebar theme.
+
+        /* --- COMPONENT: CUSTOM SCROLLBAR ---
+           Overrides default browser scrollbar to match the sidebar theme.
         */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        /* UI Component: File Tree & Interaction
-           Handles the expand/collapse animations and hover states for tree nodes.
+        /* --- COMPONENT: FILE TREE ---
+           Handles nesting, hover states, and expand/collapse animations.
         */
         details > summary { list-style: none; cursor: pointer; transition: all 0.2s; }
         details > summary::-webkit-details-marker { display: none; }
         .tree-row:hover { background-color: #f1f5f9; }
+
+        /* Animation: Smooth entry for list items */
         .fade-in { animation: fadeIn 0.4s ease-out; }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* UI Component: Badges
-           Color-coded indicators for file types and data categories.
+        /* --- COMPONENT: BADGES ---
+           Visual indicators for data types and file categories.
         */
-        .badge { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; white-space: nowrap; }
-        
-        /* Data Classification Colors */
-        .badge-target { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; } /* Validated Data (Y) */
-        .badge-feature { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; } /* Processed Data (X) */
-        .badge-raw { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }     /* Raw Sensor Input */
-        .badge-clean { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }   /* QC / Cleaning */
+        .badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        /* Badge Variants */
+        .badge-target { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; } /* Label/Target */
+        .badge-feature { background-color: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; } /* Feature Set */
+        .badge-raw { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }     /* Raw Data */
+        .badge-clean { background-color: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }   /* QC/Processing */
         .badge-meta { background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }   /* Documentation */
-
-        /* Scenario Status Colors */
-        .badge-scenario { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-        .badge-cancelled { background-color: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; text-decoration: line-through; }
-
-        /* UI Component: Glossary Cards */
-        .glossary-card {
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-        .glossary-card:hover {
-            transform: translateY(-2px);
-            border-left-color: #3b82f6;
-        }
-
-        /* UI Component: Accordion Animation */
-        details[open] summary .fa-chevron-down {
-            transform: rotate(180deg);
-        }
-        .accordion-arrow {
-            transition: transform 0.3s ease;
-        }
-
-        /* UI Component: Code Badge */
         .badge-code {
             font-family: 'JetBrains Mono', monospace;
             background-color: #f1f5f9;
@@ -85,163 +71,165 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
-        
+
+        /* Status Indicators */
+        .badge-scenario { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-cancelled { background-color: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; text-decoration: line-through; }
+
+        /* --- COMPONENT: GLOSSARY CARDS --- */
+        .glossary-card {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        .glossary-card:hover {
+            transform: translateY(-2px);
+            border-left-color: #3b82f6;
+        }
+
+        /* --- COMPONENT: ACCORDION --- */
+        details[open] summary .fa-chevron-down { transform: rotate(180deg); }
+        .accordion-arrow { transition: transform 0.3s ease; }
+
     </style>
 </head>
 
 <body class="h-screen flex overflow-hidden text-slate-800">
 
-    <!-- 
-        REGION: Sidebar Navigation 
-        Contains the logo, global search, and main view switcher.
-    -->
-    <aside class="w-80 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 shadow-2xl z-20">
-        
-        <!-- App Branding -->
-        <div class="p-6 border-b border-slate-800 bg-slate-950">
-            <div class="flex items-center gap-3 text-blue-500 mb-1">
-                <i class="fa-solid fa-database text-2xl animate-pulse"></i>
-                <div>
-                    <span class="font-bold text-sm tracking-tight text-white block leading-tight">NASA SOTERIA<br>Dataset Dictionary</span>
-                </div>
-            </div>
-        </div>
+<!--
+  LAYOUT: SIDEBAR
+  Primary navigation and global search context.
+-->
+<aside class="w-80 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 shadow-2xl z-20">
 
-        <!-- Global Search Input -->
-        <div class="px-4 py-3 bg-slate-900 border-b border-slate-800">
-            <div class="relative group">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors text-xs"></i>
-                <input type="text" id="search-input" placeholder="Search files or folders..." 
-                    class="w-full bg-slate-800 text-slate-200 text-xs rounded-lg pl-9 pr-3 py-2.5 border border-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500 transition-all">
-            </div>
-        </div>
-
-        <!-- Primary Navigation Links -->
-        <nav class="flex-1 overflow-y-auto p-4 space-y-2">
-            <!-- View: Explorer -->
-            <button onclick="switchView('explorer')" id="nav-explorer" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group">
-                <i class="fa-solid fa-folder-tree w-5 text-center"></i>
-                <div class="text-left">
-                    <span class="font-bold text-sm block">Data Explorer</span>
-                    <span class="text-[10px] text-blue-200 opacity-80 font-normal">Original Folder Structure</span>
-                </div>
-            </button>
-            
-            <!-- View: Glossary -->
-            <button onclick="switchView('glossary')" id="nav-glossary" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
-                <i class="fa-solid fa-book-journal-whills w-5 text-center"></i>
-                <div class="text-left">
-                    <span class="font-bold text-sm block">Glossary</span>
-                    <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Technical Terms</span>
-                </div>
-            </button>
-
-            <!-- View: Scenarios -->
-            <button onclick="switchView('scenarios')" id="nav-scenarios" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
-                <i class="fa-solid fa-plane-arrival w-5 text-center"></i>
-                <div class="text-left">
-                    <span class="font-bold text-sm block">Simulation Scenarios</span>
-                    <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Scenario Manifest</span>
-                </div>
-            </button>
-        </nav>
-    </aside>
-
-    <!-- 
-        REGION: Main Content Area
-        Dynamic container for the selected view (Explorer, Glossary, Scenarios).
-    -->
-    <main class="flex-1 flex flex-col min-w-0 bg-white relative">
-        
-        <!-- Sticky Header -->
-        <header class="h-16 border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-10 flex items-center justify-between px-8 shadow-sm">
+    <!-- Brand Header -->
+    <div class="p-6 border-b border-slate-800 bg-slate-950">
+        <div class="flex items-center gap-3 text-blue-500 mb-1">
+            <i class="fa-solid fa-database text-2xl animate-pulse"></i>
             <div>
-                <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <span id="page-title">File Analysis Dashboard</span>
-                </h1>
+                <span class="font-bold text-sm tracking-tight text-white block leading-tight">NASA SOTERIA<br>Dataset Dictionary</span>
             </div>
-        </header>
-
-        <!-- Scrollable Content Wrapper -->
-        <div class="flex-1 overflow-y-auto p-8 bg-slate-50 relative scroll-smooth">
-            
-            <!-- 
-                VIEW 1: Data Explorer 
-                Renders the recursive file tree and the legend.
-            -->
-            <div id="view-explorer" class="max-w-6xl mx-auto fade-in">
-                
-                <!-- Legend / Key -->
-                <div class="flex flex-wrap gap-3 mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-center justify-center text-xs">
-                    <span class="font-bold text-slate-400 mr-2 uppercase tracking-wider">Data Types:</span>
-                    <div class="flex items-center gap-2"><span class="badge badge-target">TARGET (Y)</span> <span>Label</span></div>
-                    <div class="flex items-center gap-2"><span class="badge badge-feature">FEATURE (X)</span> <span>Processed Feature</span></div>
-                    <div class="flex items-center gap-2"><span class="badge badge-clean">CLEANING</span> <span>Quality Control</span></div>
-                    <div class="flex items-center gap-2"><span class="badge badge-raw">RAW INPUT</span> <span>Raw Sensor</span></div>
-                    <div class="flex items-center gap-2"><span class="badge badge-meta">META/DOCS</span> <span>Docs & Reports</span></div>
-                </div>
-
-                <!-- Tree Root Container -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden min-h-[600px]">
-                    <div class="p-6 font-mono text-sm leading-relaxed" id="tree-root"></div>
-                </div>
-            </div>
-
-            <!-- 
-                VIEW 2: Glossary 
-                Grid layout for defining technical terms.
-            -->
-            <div id="view-glossary" class="max-w-5xl mx-auto hidden fade-in">
-
-                <!-- Section Header & Local Search -->
-                <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-slate-200 pb-6">
-                    <div>
-                        <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Terminology</h2>
-                        <p class="text-slate-500 text-sm mt-1">Technical definitions for telemetry, biometrics, and file formats.</p>
-                    </div>
-                    <div class="relative w-full md:w-72">
-                        <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="glossary-search" placeholder="Filter terms..."
-                               class="w-full bg-white border border-slate-200 text-sm rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm">
-                    </div>
-                </div>
-
-                <!-- Content Container (Populated via JS) -->
-                <div id="glossary-container" class="space-y-6"></div>
-            </div>
-
-            <!-- 
-                VIEW 3: Scenarios 
-                List of flight simulation scenarios used in the experiment.
-            -->
-            <div id="view-scenarios" class="max-w-5xl mx-auto hidden fade-in">
-                <div class="mb-8 border-b border-slate-200 pb-6">
-                    <h2 class="text-2xl font-bold text-slate-800">Experiment Scenarios (KCLT RNAV STAR)</h2>
-                    <p class="text-slate-500 text-sm mt-2">All scenarios are based on Charlotte Douglas International Airport (KCLT) arrival routes. In the SOTERIA experiments, the order of scenarios was randomized across crews to minimize learning effects.</p>
-                </div>
-                <div class="space-y-6" id="scenarios-grid"></div>
-            </div>
-
         </div>
-    </main>
+    </div>
 
-    <!-- Application Logic -->
-    <script>
-        /* ==========================================================================
-           1. DATA CONFIGURATION & METADATA
-           Static definitions for file descriptions, glossary terms, and scenarios.
-           ========================================================================== */
-        
-        /**
-         * Mapping of filenames or keywords to their descriptions and tags.
-         * Used to enrich the file tree with badges and tooltips.
-         */
-        const fileMetadata = {
-            // --- Root Level Documentation ---
+    <!-- Global Search -->
+    <div class="px-4 py-3 bg-slate-900 border-b border-slate-800">
+        <div class="relative group">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors text-xs"></i>
+            <input type="text" id="search-input" placeholder="Search files or folders..."
+                   class="w-full bg-slate-800 text-slate-200 text-xs rounded-lg pl-9 pr-3 py-2.5 border border-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-slate-500 transition-all">
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 overflow-y-auto p-4 space-y-2">
+        <!-- Data Explorer Tab -->
+        <button onclick="switchView('explorer')" id="nav-explorer" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group">
+            <i class="fa-solid fa-folder-tree w-5 text-center"></i>
+            <div class="text-left">
+                <span class="font-bold text-sm block">Data Explorer</span>
+                <span class="text-[10px] text-blue-200 opacity-80 font-normal">Original Folder Structure</span>
+            </div>
+        </button>
+
+        <!-- Glossary Tab -->
+        <button onclick="switchView('glossary')" id="nav-glossary" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
+            <i class="fa-solid fa-book-journal-whills w-5 text-center"></i>
+            <div class="text-left">
+                <span class="font-bold text-sm block">Glossary</span>
+                <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Technical Terms</span>
+            </div>
+        </button>
+
+        <!-- Scenarios Tab -->
+        <button onclick="switchView('scenarios')" id="nav-scenarios" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
+            <i class="fa-solid fa-plane-arrival w-5 text-center"></i>
+            <div class="text-left">
+                <span class="font-bold text-sm block">Simulation Scenarios</span>
+                <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">Scenario Manifest</span>
+            </div>
+        </button>
+    </nav>
+</aside>
+
+<!--
+  LAYOUT: MAIN CONTENT
+  Container for dynamic view injection.
+-->
+<main class="flex-1 flex flex-col min-w-0 bg-white relative">
+
+    <!-- Top Bar -->
+    <header class="h-16 border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-10 flex items-center justify-between px-8 shadow-sm">
+        <div>
+            <h1 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span id="page-title">File Analysis Dashboard</span>
+            </h1>
+        </div>
+    </header>
+
+    <!-- Viewport -->
+    <div class="flex-1 overflow-y-auto p-8 bg-slate-50 relative scroll-smooth">
+
+        <!-- VIEW: Data Explorer (Tree) -->
+        <div id="view-explorer" class="max-w-6xl mx-auto fade-in">
+
+            <!-- Legend -->
+            <div class="flex flex-wrap gap-3 mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm items-center justify-center text-xs">
+                <span class="font-bold text-slate-400 mr-2 uppercase tracking-wider">Data Types:</span>
+                <div class="flex items-center gap-2"><span class="badge badge-target">TARGET (Y)</span> <span>Label</span></div>
+                <div class="flex items-center gap-2"><span class="badge badge-feature">FEATURE (X)</span> <span>Processed Feature</span></div>
+                <div class="flex items-center gap-2"><span class="badge badge-clean">CLEANING</span> <span>Quality Control</span></div>
+                <div class="flex items-center gap-2"><span class="badge badge-raw">RAW INPUT</span> <span>Raw Sensor</span></div>
+                <div class="flex items-center gap-2"><span class="badge badge-meta">META/DOCS</span> <span>Docs & Reports</span></div>
+            </div>
+
+            <!-- Tree Component Mount Point -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden min-h-[600px]">
+                <div class="p-6 font-mono text-sm leading-relaxed" id="tree-root"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: Glossary -->
+        <div id="view-glossary" class="max-w-5xl mx-auto hidden fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-slate-200 pb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Terminology</h2>
+                    <p class="text-slate-500 text-sm mt-1">Technical definitions for telemetry, biometrics, and file formats.</p>
+                </div>
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="glossary-search" placeholder="Filter terms..."
+                           class="w-full bg-white border border-slate-200 text-sm rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm">
+                </div>
+            </div>
+            <div id="glossary-container" class="space-y-6"></div>
+        </div>
+
+        <!-- VIEW: Scenarios -->
+        <div id="view-scenarios" class="max-w-5xl mx-auto hidden fade-in">
+            <div class="mb-8 border-b border-slate-200 pb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Experiment Scenarios (KCLT RNAV STAR)</h2>
+                <p class="text-slate-500 text-sm mt-2">All scenarios are based on Charlotte Douglas International Airport (KCLT) arrival routes. In the SOTERIA experiments, the order of scenarios was randomized across crews to minimize learning effects.</p>
+            </div>
+            <div class="space-y-6" id="scenarios-grid"></div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    /**
+     * ------------------------------------------------------------------
+     * CONFIGURATION & CONSTANTS
+     * ------------------------------------------------------------------
+     */
+
+        // Metadata mapping for file enrichment (Descriptions, Badges)
+    const fileMetadata = {
+            // Root & Docs
             "soteria-survey-data.xlsx": { desc: "Subjective Survey Data (NASA-TLX). Ground Truth for workload.", tag: "target" },
             "Appendices_HC2S-SOTERIA-Study.pdf": { desc: "Study Protocol, IRB Approval, and Experiment Design Docs.", tag: "meta" },
 
-            // --- Analysis Files (Processed) ---
+            // Analysis / Processed Data
             "Analysis_rpsa.csv": { desc: "RPSA Scores (16 Questions). The main 'Label' (Y) for Situational Awareness.", tag: "target" },
             "Analysis_sensorComfort.xlsx": { desc: "Ratings: Comfort, Performance (0-2). Used for data cleaning/filtering.", tag: "clean" },
             "Analysis_simFidelity.xlsx": { desc: "Simulation Fidelity Ratings. Used for scenario weighting.", tag: "clean" },
@@ -250,8 +238,8 @@
             "Analysis_total_eventSmarteye_metric_dataframe.csv": { desc: "Processed Eye Metrics: Pupil Diameter & Gaze Variance.", tag: "feature" },
             "Analysis_eeg_electrode_quality_vector.xlsx": { desc: "EEG Quality Mask: 0=Bad, 2=Good signal per electrode.", tag: "clean" },
             "Analysis_ekg_quality_vector.xlsx": { desc: "EKG Quality Mask: Valid time windows for heart rate data.", tag: "clean" },
-            
-            // --- Sensor Groups & Hardware ---
+
+            // Sensors & Hardware Definitions
             "ABM": { desc: "ABM B-Alert X24 (EEG). Brainwaves & Cognitive State.", tag: "raw" },
             "Emp_Emp": { desc: "Empatica E4 (Wrist). Physiological Sensors.", tag: "raw" },
             "inst panel": { desc: "Instrument Panel Screens.", tag: "raw" },
@@ -260,18 +248,18 @@
             "scenecamera": { desc: "External View Camera.", tag: "raw" },
             "Metadata_Config": { desc: "Metadata & Configuration.", tag: "meta" },
 
-            // --- File Extensions & Formats ---
-            ".blob": { desc: "Binary Data. Raw sensor signal (e.g. Brainwaves, Telemetry). Unreadable without processing.", tag: "raw" },
+            // Extensions
+            ".blob": { desc: "Binary Data. Raw sensor signal. Unreadable without processing.", tag: "raw" },
             ".indicies": { desc: "Sync Pointers. Maps raw binary data to timestamps.", tag: "meta" },
             ".log": { desc: "Device Log. Battery status, impedance check, and errors.", tag: "meta" },
             ".instructions": { desc: "Config Instructions. Startup commands for the device.", tag: "meta" },
-            ".ortho": { desc: "Calibration Data. Reference for noise removal/de-ghosting.", tag: "clean" },
-            ".mjpeg": { desc: "Motion JPEG Video. Lossless frame-by-frame video. Ideal for AI/OCR.", tag: "raw" },
+            ".ortho": { desc: "Calibration Data. Reference for noise removal.", tag: "clean" },
+            ".mjpeg": { desc: "Motion JPEG Video. Lossless frame-by-frame video.", tag: "raw" },
             ".timestamp": { desc: "Frame Timestamps. Exact millisecond timing for video frames.", tag: "meta" },
             ".thumbnails": { desc: "Preview Images.", tag: "meta" },
             ".frames": { desc: "Frame Metadata. Total count and structure info.", tag: "meta" },
 
-            // --- Sub-Folder Contexts ---
+            // Folders
             "_Acc": { desc: "Accelerometer. Measures arm motion.", tag: "raw" },
             "_Bvp": { desc: "Blood Volume Pulse. Raw Heart Rate data.", tag: "raw" },
             "_Gsr": { desc: "Galvanic Skin Response. Stress/Arousal.", tag: "feature" },
@@ -286,512 +274,496 @@
             "SmartEye_Left_Seat_ET": { desc: "Captain Eye Tracking.", tag: "raw" },
             "SmartEye_Right_Seat_ET": { desc: "FO Eye Tracking.", tag: "raw" },
 
-            // --- Metadata Files ---
+            // Files
             "manifest.xml": { desc: "Data Schema. Columns, types, units.", tag: "meta" },
             "sources.xml": { desc: "Hardware Config.", tag: "meta" },
             "details.db": { desc: "Participant DB.", tag: "meta" },
-
-            // --- Post-Processing Files ---
-            "event_vector_scenario.csv": { desc: "Scenario Events: Critical event timestamps (Errors, Alarms, Stall).", tag: "target" },
+            "event_vector_scenario.csv": { desc: "Scenario Events: Critical event timestamps.", tag: "target" },
             "file_existence_matrix.csv": { desc: "Data Integrity Matrix: Checks sensor existence (0/1).", tag: "clean" },
-            "smarteye_.csv": { desc: "Eye Tracking: Gaze Direction, Pupil Diameter, Head Rotation.", tag: "raw" },
-            "abm_.csv": { desc: "Processed EEG: Raw Voltages + Cognitive States (Workload, Distraction).", tag: "feature" },
-            "emp_acc_.csv": { desc: "Empatica ACC: 3-Axis Acceleration. Arm movement intensity.", tag: "raw" },
-            "emp_bvp_.csv": { desc: "Empatica BVP: Blood Volume Pulse. Raw optical heart data.", tag: "raw" },
-            "emp_gsr_.csv": { desc: "Empatica GSR: Galvanic Skin Response. Stress/Arousal.", tag: "feature" },
-            "emp_ibi_.csv": { desc: "Empatica IBI: Inter-Beat Interval. HRV analysis data.", tag: "feature" },
+            "smarteye_.csv": { desc: "Eye Tracking: Gaze Direction, Pupil Diameter.", tag: "raw" },
+            "abm_.csv": { desc: "Processed EEG: Raw Voltages + Cognitive States.", tag: "feature" },
+            "emp_acc_.csv": { desc: "Empatica ACC: 3-Axis Acceleration.", tag: "raw" },
+            "emp_bvp_.csv": { desc: "Empatica BVP: Blood Volume Pulse.", tag: "raw" },
+            "emp_gsr_.csv": { desc: "Empatica GSR: Galvanic Skin Response.", tag: "feature" },
+            "emp_ibi_.csv": { desc: "Empatica IBI: Inter-Beat Interval.", tag: "feature" },
             "emp_temp_.csv": { desc: "Empatica TEMP: Skin Temperature.", tag: "raw" },
-            "ifd_cockpit_.csv": { desc: "Flight Telemetry: Inputs (Stick, Pedal) & State (Speed, Altitude, G-Load).", tag: "raw" },
-
-            // --- Miscellaneous ---
+            "ifd_cockpit_.csv": { desc: "Flight Telemetry: Inputs & State.", tag: "raw" },
             "crew_info.txt": { desc: "Demographics.", tag: "meta" },
             "trial_settings.txt": { desc: "Scenario Map.", tag: "meta" },
             "EventReport": { desc: "Manual Logs.", tag: "meta" },
-            "DVR_File.mp4": { desc: "Integrated flight videos: Synchronized cockpit view, instruments, and external scene in one frame.", tag: "raw" },
+            "DVR_File.mp4": { desc: "Integrated flight videos: Synchronized cockpit view.", tag: "raw" },
             "Figures": { desc: "Checks.", tag: "meta" },
-            "eventreport.txt": { desc: "Written reports describing technical failures (e.g. Autopilot error) or operational deviations from the pilot's perspective.", tag: "meta" }
+            "eventreport.txt": { desc: "Written reports describing technical failures.", tag: "meta" }
         };
 
-        /**
-         * Glossary Data Configuration
-         * Categorized definitions for flight telemetry, physiological sensors, and system formats.
-         */
-        const glossaryData = [
-            {
-                category: "Flight Telemetry",
-                icon: "fa-plane-circle-check",
-                color: "text-blue-600",
-                items: [
-                    { term: "Angle of Attack (AoA)", code: "ALPHA / AOA", desc: "Wing-relative wind angle; primary indicator for lift and stall risk." },
-                    { term: "Calibrated Airspeed (CAS)", code: "CAS / IAS", desc: "Indicated airspeed corrected for instrument errors; used for landing reference." },
-                    { term: "Ground Speed (GS)", code: "GS / GND_SPD", desc: "Speed relative to the ground; affects stopping distance and wind calculations." },
-                    { term: "Vertical Speed (V/S)", code: "V_SPD / ROD", desc: "Rate of climb or descent; critical for stabilized approach criteria." },
-                    { term: "Glideslope Deviation", code: "GS_DEV", desc: "Vertical deviation from the ideal ILS glideslope path (dots)." },
-                    { term: "Localizer Deviation", code: "LOC_DEV", desc: "Lateral deviation from the runway centerline." },
-                    { term: "Throttle Resolver Angle", code: "TRA_1 / TRA_2", desc: "Pilot power demand lever position; manages energy state." },
-                    { term: "Control Column/Wheel", code: "COL / CW_POS", desc: "Pilot inputs for pitch and roll; indicates manual control effort." },
-                    { term: "Configuration", code: "FLAP / GEAR", desc: "State of drag/lift surfaces and landing gear." }
-                ]
-            },
-            {
-                category: "Psychophysiological Sensors",
-                icon: "fa-heart-pulse",
-                color: "text-rose-500",
-                items: [
-                    { term: "Tonic EDA / SCL", code: "eda_scl", desc: "Baseline Skin Conductance Level; indicates general arousal/stress state." },
-                    { term: "Phasic EDA / SCR", code: "eda_scr", desc: "Skin Conductance Response to immediate stimuli (e.g., ATC commands)." },
-                    { term: "Index of Cognitive Activity", code: "ICA", desc: "Pupil dilation metric independent of light reflex; measures mental workload." },
-                    { term: "Inter-Beat Interval (IBI)", code: "IBI", desc: "Time interval between heartbeats; raw source for HRV analysis." },
-                    { term: "Gaze Vector", code: "gaze_x, gaze_y", desc: "Coordinates of visual focus; determines scan pattern efficiency." },
-                    { term: "PSD (Theta/Alpha/Beta)", code: "PSD_Ch_xx", desc: "Power Spectral Density of EEG bands; correlates with fatigue and engagement." },
-                    { term: "Pupil Diameter", code: "PUPIL_DIAM", desc: "Raw pupil size; dilates involuntarily under high cognitive load." }
-                ]
-            },
-            {
-                category: "System & File Formats",
-                icon: "fa-file-code",
-                color: "text-slate-500",
-                items: [
-                    { term: ".blob (Binary Large Object)", code: "RAW BINARY", desc: "Unprocessed high-frequency signal data (e.g., EEG microvolts)." },
-                    { term: ".indicies", code: "SYNC POINTER", desc: "Pointer file mapping raw binary blobs to system timestamps." },
-                    { term: ".mjpeg (Motion JPEG)", code: "VIDEO STREAM", desc: "Lossless video stream where each frame is an independent JPEG." },
-                    { term: ".ortho", code: "CALIBRATION", desc: "Matrix for signal normalization and noise removal." },
-                    { term: ".log", code: "SYSTEM LOG", desc: "Device status logs including battery levels and impedance checks." }
-                ]
-            }
-        ];
+    // Terminology definitions for the Glossary View
+    const glossaryData = [
+        {
+            category: "Flight Telemetry",
+            icon: "fa-plane-circle-check",
+            color: "text-blue-600",
+            items: [
+                { term: "Angle of Attack (AoA)", code: "ALPHA / AOA", desc: "Wing-relative wind angle; primary indicator for lift and stall risk." },
+                { term: "Calibrated Airspeed (CAS)", code: "CAS / IAS", desc: "Indicated airspeed corrected for instrument errors; used for landing reference." },
+                { term: "Ground Speed (GS)", code: "GS / GND_SPD", desc: "Speed relative to the ground; affects stopping distance and wind calculations." },
+                { term: "Vertical Speed (V/S)", code: "V_SPD / ROD", desc: "Rate of climb or descent; critical for stabilized approach criteria." },
+                { term: "Glideslope Deviation", code: "GS_DEV", desc: "Vertical deviation from the ideal ILS glideslope path (dots)." },
+                { term: "Localizer Deviation", code: "LOC_DEV", desc: "Lateral deviation from the runway centerline." },
+                { term: "Throttle Resolver Angle", code: "TRA_1 / TRA_2", desc: "Pilot power demand lever position; manages energy state." },
+                { term: "Control Column/Wheel", code: "COL / CW_POS", desc: "Pilot inputs for pitch and roll; indicates manual control effort." },
+                { term: "Configuration", code: "FLAP / GEAR", desc: "State of drag/lift surfaces and landing gear." }
+            ]
+        },
+        {
+            category: "Psychophysiological Sensors",
+            icon: "fa-heart-pulse",
+            color: "text-rose-500",
+            items: [
+                { term: "Tonic EDA / SCL", code: "eda_scl", desc: "Baseline Skin Conductance Level; indicates general arousal/stress state." },
+                { term: "Phasic EDA / SCR", code: "eda_scr", desc: "Skin Conductance Response to immediate stimuli (e.g., ATC commands)." },
+                { term: "Index of Cognitive Activity", code: "ICA", desc: "Pupil dilation metric independent of light reflex; measures mental workload." },
+                { term: "Inter-Beat Interval (IBI)", code: "IBI", desc: "Time interval between heartbeats; raw source for HRV analysis." },
+                { term: "Gaze Vector", code: "gaze_x, gaze_y", desc: "Coordinates of visual focus; determines scan pattern efficiency." },
+                { term: "PSD (Theta/Alpha/Beta)", code: "PSD_Ch_xx", desc: "Power Spectral Density of EEG bands; correlates with fatigue and engagement." },
+                { term: "Pupil Diameter", code: "PUPIL_DIAM", desc: "Raw pupil size; dilates involuntarily under high cognitive load." }
+            ]
+        },
+        {
+            category: "System & File Formats",
+            icon: "fa-file-code",
+            color: "text-slate-500",
+            items: [
+                { term: ".blob (Binary Large Object)", code: "RAW BINARY", desc: "Unprocessed high-frequency signal data (e.g., EEG microvolts)." },
+                { term: ".indicies", code: "SYNC POINTER", desc: "Pointer file mapping raw binary blobs to system timestamps." },
+                { term: ".mjpeg (Motion JPEG)", code: "VIDEO STREAM", desc: "Lossless video stream where each frame is an independent JPEG." },
+                { term: ".ortho", code: "CALIBRATION", desc: "Matrix for signal normalization and noise removal." },
+                { term: ".log", code: "SYSTEM LOG", desc: "Device status logs including battery levels and impedance checks." }
+            ]
+        }
+    ];
 
-        /**
-         * Scenario Definitions
-         * Represents the experimental conditions pilots faced in the simulator.
-         */
-        const scenariosData = [
-            {
-                id: 1,
-                code: "CHSLY FOUR",
-                title: "Traffic Compression",
-                desc: "Pilots operate in dense traffic flow. The leading aircraft slows down unexpectedly or traffic separation reduces critically.",
-                goal: "Situational Awareness and Energy Management. Requires early detection and use of speed brakes or configuration changes to maintain safe separation.",
-                active: true
-            },
-            {
-                id: 2,
-                code: "FILPZ THREE",
-                title: "Unanticipated Tailwind",
-                desc: "Encountering a much stronger tailwind than briefed on the approach line. This increases Ground Speed and makes staying on the glide path difficult.",
-                goal: "Managing high Vertical Speed (V/S), keeping engines at idle, and deciding to Go-Around if 'Stabilized Approach' criteria are lost.",
-                active: true
-            },
-            {
-                id: 3,
-                code: "BANKR TWO",
-                title: "Routine Operational Challenges",
-                desc: "Includes unexpected system warnings or ATC instruction changes during the BANKR arrival route, increasing pilot workload.",
-                goal: "Procedural compliance and task prioritization.",
-                active: true
-            },
-            {
-                id: 4,
-                code: "CANCELLED",
-                title: "Excluded Scenario",
-                desc: "This scenario was cancelled during the experiment protocol due to time constraints and is not included in the dataset.",
-                goal: "N/A",
-                active: false
-            },
-            {
-                id: 5,
-                code: "MLLET TWO",
-                title: "Wake Turbulence",
-                desc: "Approaching behind a 'Heavy' category aircraft (e.g., A330, B777). Invisible wingtip vortices cause sudden upset/shaking.",
-                goal: "Upset Recovery (regaining control) and Go-Around decision. Measures pilot 'Expectancy'.",
-                active: true
-            },
-            {
-                id: 6,
-                code: "STOCR THREE",
-                title: "Energy Mgmt & Icing Risk",
-                desc: "Scenario configured with probable icing conditions or altitude/speed constraints requiring strict energy management on the STOCR route.",
-                goal: "Timely use of Anti-ice systems and correct descent planning.",
-                active: true
-            },
-            {
-                id: 7,
-                code: "PARQR THREE",
-                title: "Familiarization (Baseline)",
-                desc: "A baseline scenario applied at the beginning of the experiment. It contains no major surprises or emergencies.",
-                goal: "Acclimatization to simulator dynamics and sensor equipment (EEG cap, glasses, etc.). Used as a reference for 'normal operations'.",
-                active: true
-            }
-        ];
+    // Scenario definitions used in the experiment
+    const scenariosData = [
+        {
+            id: 1,
+            code: "CHSLY FOUR",
+            title: "Traffic Compression",
+            desc: "Pilots operate in dense traffic flow. The leading aircraft slows down unexpectedly or traffic separation reduces critically.",
+            goal: "Situational Awareness and Energy Management. Requires early detection and use of speed brakes or configuration changes to maintain safe separation.",
+            active: true
+        },
+        {
+            id: 2,
+            code: "FILPZ THREE",
+            title: "Unanticipated Tailwind",
+            desc: "Encountering a much stronger tailwind than briefed on the approach line. This increases Ground Speed and makes staying on the glide path difficult.",
+            goal: "Managing high Vertical Speed (V/S), keeping engines at idle, and deciding to Go-Around if 'Stabilized Approach' criteria are lost.",
+            active: true
+        },
+        {
+            id: 3,
+            code: "BANKR TWO",
+            title: "Routine Operational Challenges",
+            desc: "Includes unexpected system warnings or ATC instruction changes during the BANKR arrival route, increasing pilot workload.",
+            goal: "Procedural compliance and task prioritization.",
+            active: true
+        },
+        {
+            id: 4,
+            code: "CANCELLED",
+            title: "Excluded Scenario",
+            desc: "This scenario was cancelled during the experiment protocol due to time constraints and is not included in the dataset.",
+            goal: "N/A",
+            active: false
+        },
+        {
+            id: 5,
+            code: "MLLET TWO",
+            title: "Wake Turbulence",
+            desc: "Approaching behind a 'Heavy' category aircraft (e.g., A330, B777). Invisible wingtip vortices cause sudden upset/shaking.",
+            goal: "Upset Recovery (regaining control) and Go-Around decision. Measures pilot 'Expectancy'.",
+            active: true
+        },
+        {
+            id: 6,
+            code: "STOCR THREE",
+            title: "Energy Mgmt & Icing Risk",
+            desc: "Scenario configured with probable icing conditions or altitude/speed constraints requiring strict energy management on the STOCR route.",
+            goal: "Timely use of Anti-ice systems and correct descent planning.",
+            active: true
+        },
+        {
+            id: 7,
+            code: "PARQR THREE",
+            title: "Familiarization (Baseline)",
+            desc: "A baseline scenario applied at the beginning of the experiment. It contains no major surprises or emergencies.",
+            goal: "Acclimatization to simulator dynamics and sensor equipment (EEG cap, glasses, etc.). Used as a reference for 'normal operations'.",
+            active: true
+        }
+    ];
 
-        /**
-         * Static representation of the folder structure.
-         * In a production environment, this would be fetched from an API.
-         */
-        const treeStructure = [
-            { name: "soteria-survey-data.xlsx", type: "file" },
-            { name: "Appendices_HC2S-SOTERIA-Study.pdf", type: "file" },
-            { 
-                name: "Analysis", type: "folder", children: [
-                    { name: "Analysis_rpsa.csv", type: "file" },
-                    { name: "Analysis_sensorComfort.xlsx", type: "file" },
-                    { name: "Analysis_simFidelity.xlsx", type: "file" },
-                    { name: "Analysis_total_eventEKG_metric_dataframe.csv", type: "file" },
-                    { name: "Analysis_total_eventEEG_metric_dataframe.csv", type: "file" },
-                    { name: "Analysis_total_eventSmarteye_metric_dataframe.csv", type: "file" },
-                    { name: "Analysis_eeg_electrode_quality_vector.xlsx", type: "file" },
-                    { name: "Analysis_ekg_quality_vector.xlsx", type: "file" }
-                ]
-            },
-            {
-                name: "Crew_XX [Generic Structure for Crew folder of 12]", type: "folder", children: [
-                    { name: "crew_info.txt", type: "file" },
-                    { name: "trial_settings.txt", type: "file" },
-                    {
-                        name: "Synched", type: "folder", children: [
-                            {
-                                name: "[Timestamp]", type: "folder", children: [
-                                    { name: "ABM", type: "folder", children: [
+    // Static representation of the recursive file system structure
+    // Note: In production, this would be fetched from a REST API
+    const treeStructure = [
+        { name: "soteria-survey-data.xlsx", type: "file" },
+        { name: "Appendices_HC2S-SOTERIA-Study.pdf", type: "file" },
+        {
+            name: "Analysis", type: "folder", children: [
+                { name: "Analysis_rpsa.csv", type: "file" },
+                { name: "Analysis_sensorComfort.xlsx", type: "file" },
+                { name: "Analysis_simFidelity.xlsx", type: "file" },
+                { name: "Analysis_total_eventEKG_metric_dataframe.csv", type: "file" },
+                { name: "Analysis_total_eventEEG_metric_dataframe.csv", type: "file" },
+                { name: "Analysis_total_eventSmarteye_metric_dataframe.csv", type: "file" },
+                { name: "Analysis_eeg_electrode_quality_vector.xlsx", type: "file" },
+                { name: "Analysis_ekg_quality_vector.xlsx", type: "file" }
+            ]
+        },
+        {
+            name: "Crew_XX [Generic Structure for Crew folder of 12]", type: "folder", children: [
+                { name: "crew_info.txt", type: "file" },
+                { name: "trial_settings.txt", type: "file" },
+                {
+                    name: "Synched", type: "folder", children: [
+                        {
+                            name: "[Timestamp]", type: "folder", children: [
+                                { name: "ABM", type: "folder", children: [
                                         { name: "ABM.blob", type: "file" },
                                         { name: "ABM.indicies", type: "file" },
                                         { name: "ABM.log", type: "file" },
                                         { name: "ABM.instructions", type: "file" },
                                         { name: "ABM.ortho", type: "file" }
                                     ]},
-                                    { name: "Emp_Emp", type: "folder", children: [
+                                { name: "Emp_Emp", type: "folder", children: [
                                         { name: "_Acc", type: "folder", children: [
-                                            {name: "Emp_Acc.blob", type:"file"}, {name: "Emp_Acc.indicies", type:"file"}, {name: "Emp_Acc.log", type:"file"}, {name: "Emp_Acc.instructions", type:"file"}, {name: "Emp_Acc.ortho", type:"file"}
-                                        ]},
+                                                {name: "Emp_Acc.blob", type:"file"}, {name: "Emp_Acc.indicies", type:"file"}, {name: "Emp_Acc.log", type:"file"}, {name: "Emp_Acc.instructions", type:"file"}, {name: "Emp_Acc.ortho", type:"file"}
+                                            ]},
                                         { name: "_Bvp", type: "folder", children: [
-                                            {name: "Emp_Bvp.blob", type:"file"}, {name: "Emp_Bvp.indicies", type:"file"}, {name: "Emp_Bvp.log", type:"file"}, {name: "Emp_Bvp.instructions", type:"file"}, {name: "Emp_Bvp.ortho", type:"file"}
-                                        ]},
+                                                {name: "Emp_Bvp.blob", type:"file"}, {name: "Emp_Bvp.indicies", type:"file"}, {name: "Emp_Bvp.log", type:"file"}, {name: "Emp_Bvp.instructions", type:"file"}, {name: "Emp_Bvp.ortho", type:"file"}
+                                            ]},
                                         { name: "_Gsr", type: "folder", children: [
-                                            {name: "Emp_Gsr.blob", type:"file"}, {name: "Emp_Gsr.indicies", type:"file"}, {name: "Emp_Gsr.log", type:"file"}, {name: "Emp_Gsr.instructions", type:"file"}, {name: "Emp_Gsr.ortho", type:"file"}
-                                        ]},
+                                                {name: "Emp_Gsr.blob", type:"file"}, {name: "Emp_Gsr.indicies", type:"file"}, {name: "Emp_Gsr.log", type:"file"}, {name: "Emp_Gsr.instructions", type:"file"}, {name: "Emp_Gsr.ortho", type:"file"}
+                                            ]},
                                         { name: "_Ibi", type: "folder", children: [
-                                            {name: "Emp_Ibi.blob", type:"file"}, {name: "Emp_Ibi.indicies", type:"file"}, {name: "Emp_Ibi.log", type:"file"}, {name: "Emp_Ibi.instructions", type:"file"}, {name: "Emp_Ibi.ortho", type:"file"}
-                                        ]},
+                                                {name: "Emp_Ibi.blob", type:"file"}, {name: "Emp_Ibi.indicies", type:"file"}, {name: "Emp_Ibi.log", type:"file"}, {name: "Emp_Ibi.instructions", type:"file"}, {name: "Emp_Ibi.ortho", type:"file"}
+                                            ]},
                                         { name: "_Temp", type: "folder", children: [
-                                            {name: "Emp_Temp.blob", type:"file"}, {name: "Emp_Temp.indicies", type:"file"}, {name: "Emp_Temp.log", type:"file"}, {name: "Emp_Temp.instructions", type:"file"}, {name: "Emp_Temp.ortho", type:"file"}
-                                        ]}
+                                                {name: "Emp_Temp.blob", type:"file"}, {name: "Emp_Temp.indicies", type:"file"}, {name: "Emp_Temp.log", type:"file"}, {name: "Emp_Temp.instructions", type:"file"}, {name: "Emp_Temp.ortho", type:"file"}
+                                            ]}
                                     ]},
-                                    { name: "inst panel", type: "folder", children: [
+                                { name: "inst panel", type: "folder", children: [
                                         { name: "upper_eicas", type: "folder", children: [
-                                            {name: "inst panel.upper_eicas.timestamp", type:"file"}, {name: "inst panel.upper_eicas.thumbnails", type:"file"}, {name: "inst panel.upper_eicas.mjpeg", type:"file"}, {name: "inst panel.upper_eicas.indicies", type:"file"}, {name: "inst panel.upper_eicas.frames", type:"file"}
-                                        ]},
+                                                {name: "inst panel.upper_eicas.timestamp", type:"file"}, {name: "inst panel.upper_eicas.thumbnails", type:"file"}, {name: "inst panel.upper_eicas.mjpeg", type:"file"}, {name: "inst panel.upper_eicas.indicies", type:"file"}, {name: "inst panel.upper_eicas.frames", type:"file"}
+                                            ]},
                                         { name: "pfd_fo", type: "folder", children: [
-                                            {name: "inst panel.pfd_fo.timestamp", type:"file"}, {name: "inst panel.pfd_fo.thumbnails", type:"file"}, {name: "inst panel.pfd_fo.mjpeg", type:"file"}, {name: "inst panel.pfd_fo.indicies", type:"file"}, {name: "inst panel.pfd_fo.frames", type:"file"}
-                                        ]},
+                                                {name: "inst panel.pfd_fo.timestamp", type:"file"}, {name: "inst panel.pfd_fo.thumbnails", type:"file"}, {name: "inst panel.pfd_fo.mjpeg", type:"file"}, {name: "inst panel.pfd_fo.indicies", type:"file"}, {name: "inst panel.pfd_fo.frames", type:"file"}
+                                            ]},
                                         { name: "pfd_capt", type: "folder", children: [
-                                            {name: "inst panel.pfd_capt.timestamp", type:"file"}, {name: "inst panel.pfd_capt.thumbnails", type:"file"}, {name: "inst panel.pfd_capt.mjpeg", type:"file"}, {name: "inst panel.pfd_capt.indicies", type:"file"}, {name: "inst panel.pfd_capt.frames", type:"file"}
-                                        ]},
+                                                {name: "inst panel.pfd_capt.timestamp", type:"file"}, {name: "inst panel.pfd_capt.thumbnails", type:"file"}, {name: "inst panel.pfd_capt.mjpeg", type:"file"}, {name: "inst panel.pfd_capt.indicies", type:"file"}, {name: "inst panel.pfd_capt.frames", type:"file"}
+                                            ]},
                                         { name: "nav_fo", type: "folder", children: [
-                                            {name: "inst panel.nav_fo.timestamp", type:"file"}, {name: "inst panel.nav_fo.thumbnails", type:"file"}, {name: "inst panel.nav_fo.mjpeg", type:"file"}, {name: "inst panel.nav_fo.indicies", type:"file"}, {name: "inst panel.nav_fo.frames", type:"file"}
-                                        ]},
+                                                {name: "inst panel.nav_fo.timestamp", type:"file"}, {name: "inst panel.nav_fo.thumbnails", type:"file"}, {name: "inst panel.nav_fo.mjpeg", type:"file"}, {name: "inst panel.nav_fo.indicies", type:"file"}, {name: "inst panel.nav_fo.frames", type:"file"}
+                                            ]},
                                         { name: "nav_capt", type: "folder", children: [
-                                            {name: "inst panel.nav_capt.timestamp", type:"file"}, {name: "inst panel.nav_capt.thumbnails", type:"file"}, {name: "inst panel.nav_capt.mjpeg", type:"file"}, {name: "inst panel.nav_capt.indicies", type:"file"}, {name: "inst panel.nav_capt.frames", type:"file"}
-                                        ]},
+                                                {name: "inst panel.nav_capt.timestamp", type:"file"}, {name: "inst panel.nav_capt.thumbnails", type:"file"}, {name: "inst panel.nav_capt.mjpeg", type:"file"}, {name: "inst panel.nav_capt.indicies", type:"file"}, {name: "inst panel.nav_capt.frames", type:"file"}
+                                            ]},
                                         { name: "knee_panel_fo", type: "folder", children: [
-                                            {name: "inst panel.knee_panel_fo.timestamp", type:"file"}, {name: "inst panel.knee_panel_fo.thumbnails", type:"file"}, {name: "inst panel.knee_panel_fo.mjpeg", type:"file"}, {name: "inst panel.knee_panel_fo.indicies", type:"file"}, {name: "inst panel.knee_panel_fo.frames", type:"file"}
-                                        ]}
+                                                {name: "inst panel.knee_panel_fo.timestamp", type:"file"}, {name: "inst panel.knee_panel_fo.thumbnails", type:"file"}, {name: "inst panel.knee_panel_fo.mjpeg", type:"file"}, {name: "inst panel.knee_panel_fo.indicies", type:"file"}, {name: "inst panel.knee_panel_fo.frames", type:"file"}
+                                            ]}
                                     ]},
-                                    { name: "SmartEye", type: "folder", children: [
+                                { name: "SmartEye", type: "folder", children: [
                                         { name: "SmartEye_Left_Seat_ET", type: "folder", children: [
-                                            {name: "SmartEye_Left.blob", type:"file"}, {name: "SmartEye_Left.indicies", type:"file"}, {name: "SmartEye_Left.log", type:"file"}, {name: "SmartEye_Left.instructions", type:"file"}, {name: "SmartEye_Left.ortho", type:"file"}
-                                        ]},
+                                                {name: "SmartEye_Left.blob", type:"file"}, {name: "SmartEye_Left.indicies", type:"file"}, {name: "SmartEye_Left.log", type:"file"}, {name: "SmartEye_Left.instructions", type:"file"}, {name: "SmartEye_Left.ortho", type:"file"}
+                                            ]},
                                         { name: "SmartEye_Right_Seat_ET", type: "folder", children: [
-                                            {name: "SmartEye_Right.blob", type:"file"}, {name: "SmartEye_Right.indicies", type:"file"}, {name: "SmartEye_Right.log", type:"file"}, {name: "SmartEye_Right.instructions", type:"file"}, {name: "SmartEye_Right.ortho", type:"file"}
-                                        ]}
+                                                {name: "SmartEye_Right.blob", type:"file"}, {name: "SmartEye_Right.indicies", type:"file"}, {name: "SmartEye_Right.log", type:"file"}, {name: "SmartEye_Right.instructions", type:"file"}, {name: "SmartEye_Right.ortho", type:"file"}
+                                            ]}
                                     ]},
-                                    { name: "IFD_COCKPIT", type: "folder", children: [
+                                { name: "IFD_COCKPIT", type: "folder", children: [
                                         { name: "IFD_COCKPIT.blob", type: "file" },
                                         { name: "IFD_COCKPIT.indicies", type: "file" },
                                         { name: "IFD_COCKPIT.log", type: "file" },
                                         { name: "IFD_COCKPIT.instructions", type: "file" },
                                         { name: "IFD_COCKPIT.ortho", type: "file" }
                                     ]},
-                                    { name: "scenecamera", type: "folder", children: [
+                                { name: "scenecamera", type: "folder", children: [
                                         { name: "scenecamera.timestamp", type: "file" },
                                         { name: "scenecamera.thumbnails", type: "file" },
                                         { name: "scenecamera.mjpeg", type: "file" },
                                         { name: "scenecamera.indicies", type: "file" },
                                         { name: "scenecamera.frames", type: "file" }
                                     ]},
-                                    { name: "Metadata_Config", type: "folder", children: [
+                                { name: "Metadata_Config", type: "folder", children: [
                                         { name: "manifest.xml", type: "file" },
                                         { name: "sources.xml", type: "file" },
                                         { name: "details.db", type: "file" }
                                     ]}
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        name: "Processing", type: "folder", children: [
-                            { name: "event_vector_scenario.csv", type: "file" },
-                            { name: "file_existence_matrix.csv", type: "file" },
-                            { name: "smarteye_.csv", type: "file" },
-                            { name: "abm_.csv", type: "file" },
-                            { name: "emp_acc_.csv", type: "file" },
-                            { name: "emp_bvp_.csv", type: "file" },
-                            { name: "emp_gsr_.csv", type: "file" },
-                            { name: "emp_ibi_.csv", type: "file" },
-                            { name: "emp_temp_.csv", type: "file" },
-                            { name: "ifd_cockpit_.csv", type: "file" }
-                        ]
-                    },
-                    {
-                        name: "Figures", type: "folder", children: [
-                            { name: "file_existence.jpg", type: "file" }
-                        ]
-                    },
-                    {
-                        name: "EventReport", type: "folder", children: [
-                            { name: "eventreport.txt", type: "file" }
-                        ]
-                    },
-                    {
-                        name: "DVR", type: "folder", children: [
-                            { name: "DVR_File.mp4", type: "file" }
-                        ]
-                    }
-                ]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Processing", type: "folder", children: [
+                        { name: "event_vector_scenario.csv", type: "file" },
+                        { name: "file_existence_matrix.csv", type: "file" },
+                        { name: "smarteye_.csv", type: "file" },
+                        { name: "abm_.csv", type: "file" },
+                        { name: "emp_acc_.csv", type: "file" },
+                        { name: "emp_bvp_.csv", type: "file" },
+                        { name: "emp_gsr_.csv", type: "file" },
+                        { name: "emp_ibi_.csv", type: "file" },
+                        { name: "emp_temp_.csv", type: "file" },
+                        { name: "ifd_cockpit_.csv", type: "file" }
+                    ]
+                },
+                {
+                    name: "Figures", type: "folder", children: [
+                        { name: "file_existence.jpg", type: "file" }
+                    ]
+                },
+                {
+                    name: "EventReport", type: "folder", children: [
+                        { name: "eventreport.txt", type: "file" }
+                    ]
+                },
+                {
+                    name: "DVR", type: "folder", children: [
+                        { name: "DVR_File.mp4", type: "file" }
+                    ]
+                }
+            ]
+        }
+    ];
+
+    /**
+     * ------------------------------------------------------------------
+     * CORE APPLICATION LOGIC
+     * ------------------------------------------------------------------
+     */
+
+    let processedTreeData = [];
+
+    /**
+     * Initializes the application state, processes data, and sets up event listeners.
+     * Triggered on DOMContentLoaded.
+     */
+    function init() {
+        // Data Preparation
+        processedTreeData = processGrouping(treeStructure);
+
+        // Initial Renders
+        renderTree(processedTreeData);
+        renderGlossary(glossaryData);
+        renderScenarios();
+
+        // Event: Global Search Input
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            if (!query) {
+                renderTree(processedTreeData);
+            } else {
+                const filteredData = filterTreeData(processedTreeData, query);
+                renderTree(filteredData, true);
+
+                // Auto-switch to Explorer if currently on another tab
+                if(document.getElementById('view-explorer').classList.contains('hidden')) {
+                    switchView('explorer');
+                }
             }
-        ];
+        });
 
-        /* ==========================================================================
-           2. APP LOGIC & RENDERERS
-           ========================================================================== */
+        // Event: Glossary Search Input
+        document.getElementById('glossary-search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
 
-        let processedTreeData = [];
+            if (!query) {
+                renderGlossary(glossaryData);
+            } else {
+                // Filter categories to only include matching items
+                const filteredGlossary = glossaryData.map(cat => {
+                    const matchingItems = cat.items.filter(item =>
+                        item.term.toLowerCase().includes(query) ||
+                        item.code.toLowerCase().includes(query) ||
+                        item.desc.toLowerCase().includes(query)
+                    );
+                    return { ...cat, items: matchingItems };
+                }).filter(cat => cat.items.length > 0);
 
-        /**
-         * Initialize application state and event listeners.
-         * Runs on DOMContentLoaded.
-         */
-        function init() {
-            // Data Preparation
-            processedTreeData = processGrouping(treeStructure);
-
-            // Initial View Rendering
-            renderTree(processedTreeData);
-            renderGlossary(glossaryData);
-            renderScenarios();
-
-            // Event Listener: Global File Search
-            document.getElementById('search-input').addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-
-                if (!query) {
-                    renderTree(processedTreeData);
-                } else {
-                    const filteredData = filterTreeData(processedTreeData, query);
-                    renderTree(filteredData, true);
-
-                    // Auto-switch to explorer view if hidden
-                    if(document.getElementById('view-explorer').classList.contains('hidden')) {
-                        switchView('explorer');
-                    }
-                }
-            });
-
-            // Event Listener: Glossary Local Search
-            // Filters categories and expands accordions based on matches.
-            document.getElementById('glossary-search').addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-
-                if (!query) {
-                    renderGlossary(glossaryData);
-                } else {
-                    // Filter categories to only include matching items
-                    const filteredGlossary = glossaryData.map(cat => {
-                        const matchingItems = cat.items.filter(item =>
-                            item.term.toLowerCase().includes(query) ||
-                            item.code.toLowerCase().includes(query) ||
-                            item.desc.toLowerCase().includes(query)
-                        );
-                        return { ...cat, items: matchingItems };
-                    }).filter(cat => cat.items.length > 0);
-
-                    renderGlossary(filteredGlossary, true); // Force expand on search
-                }
-            });
-        }
-        /**
-         * Resolves the CSS class for a specific metadata tag.
-         * @param {string} tag - The metadata tag (e.g., 'target', 'feature')
-         * @returns {string} CSS class name for the badge
-         */
-        function getBadgeClass(tag) {
-            switch(tag) {
-                case 'target': return 'badge-target';
-                case 'feature': return 'badge-feature';
-                case 'raw': return 'badge-raw';
-                case 'clean': return 'badge-clean';
-                default: return 'badge-meta';
+                renderGlossary(filteredGlossary, true);
             }
-        }
+        });
+    }
 
-        /* --- SEARCH & FILTER LOGIC --- */
-        
-        /**
-         * Recursively filters the tree structure based on a search query.
-         * Preserves folder hierarchy if a child node matches the query.
-         */
-        function filterTreeData(nodes, query) {
-            return nodes.reduce((acc, node) => {
-                const newNode = { ...node }; // Shallow copy
-                const nameMatch = node.name.toLowerCase().includes(query);
-                
-                if (node.children) {
-                    const filteredChildren = filterTreeData(node.children, query);
-                    
-                    // Keep folder if it has matching children OR matches the name itself
-                    if (filteredChildren.length > 0) {
-                        newNode.children = filteredChildren;
-                        acc.push(newNode);
-                    } else if (nameMatch) {
-                        acc.push(node); 
-                    }
-                } else {
-                    if (nameMatch) acc.push(newNode);
+    /**
+     * Returns the appropriate Tailwind CSS class for a given metadata tag.
+     * @param {string} tag - category identifier (e.g., 'target', 'feature')
+     */
+    function getBadgeClass(tag) {
+        switch(tag) {
+            case 'target': return 'badge-target';
+            case 'feature': return 'badge-feature';
+            case 'raw': return 'badge-raw';
+            case 'clean': return 'badge-clean';
+            default: return 'badge-meta';
+        }
+    }
+
+    /* --- SEARCH & UTILITIES --- */
+
+    /**
+     * Recursively filters tree nodes.
+     * Retains folder structure if any descendant matches the query.
+     * @param {Array} nodes - Tree data
+     * @param {string} query - Search term
+     */
+    function filterTreeData(nodes, query) {
+        return nodes.reduce((acc, node) => {
+            const newNode = { ...node };
+            const nameMatch = node.name.toLowerCase().includes(query);
+
+            if (node.children) {
+                const filteredChildren = filterTreeData(node.children, query);
+
+                if (filteredChildren.length > 0) {
+                    newNode.children = filteredChildren;
+                    acc.push(newNode);
+                } else if (nameMatch) {
+                    acc.push(node);
                 }
-                return acc;
-            }, []);
+            } else {
+                if (nameMatch) acc.push(newNode);
+            }
+            return acc;
+        }, []);
+    }
+
+    /**
+     * Renders the File Tree view.
+     * @param {Array} nodes - Processed tree data
+     * @param {boolean} expandAll - Forces all folders to open state (used in search)
+     */
+    function renderTree(nodes, expandAll = false) {
+        const container = document.getElementById('tree-root');
+        container.innerHTML = '';
+
+        if (nodes.length === 0) {
+            container.innerHTML = `<div class="text-center text-slate-400 py-4 italic text-xs">No results found...</div>`;
+            return;
         }
 
-        /**
-         * Renders the hierarchical tree view into the DOM.
-         * @param {Array} nodes - The tree data structure
-         * @param {boolean} expandAll - Whether to start with all folders open (useful for search)
-         */
-        function renderTree(nodes, expandAll = false) {
-            const container = document.getElementById('tree-root');
-            container.innerHTML = '';
-            
-            if (nodes.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-4 italic text-xs">No results found...</div>`;
-                return;
+        nodes.forEach(node => {
+            container.appendChild(createTreeNode(node, 0, expandAll));
+        });
+    }
+
+    /**
+     * Processes raw tree nodes.
+     * Useful hook for future virtual folder logic or flattening.
+     */
+    function processGrouping(nodes) {
+        let result = [];
+        nodes.forEach(node => {
+            if(node.type === 'folder') {
+                let children = node.children ? processGrouping(node.children) : [];
+                result.push({...node, children: children});
+            } else {
+                result.push(node);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Generates DOM elements for tree nodes (Files/Folders).
+     * @param {Object} node - Current node data
+     * @param {number} level - Nesting depth for indentation
+     * @param {boolean} expandAll - Open state flag
+     */
+    function createTreeNode(node, level, expandAll) {
+        const indent = level * 24;
+
+        // Render Folder
+        if (node.type.includes('folder')) {
+            const details = document.createElement('details');
+            details.className = "group";
+            if (expandAll) details.open = true;
+
+            const summary = document.createElement('summary');
+            summary.className = "flex items-center gap-2 py-1.5 px-2 rounded hover:bg-slate-100 tree-row";
+            summary.style.marginLeft = `${indent}px`;
+
+            // Icon logic
+            let icon = "fa-folder text-yellow-400";
+            let titleClass = "font-bold text-slate-700";
+
+            let extraDesc = "";
+            if(fileMetadata[node.name]) {
+                extraDesc = `<span class="ml-2 text-[10px] text-slate-400 italic font-normal">(${fileMetadata[node.name].desc})</span>`;
             }
 
-            nodes.forEach(node => {
-                container.appendChild(createTreeNode(node, 0, expandAll));
-            });
-        }
-
-        /**
-         * Recursively processes tree nodes to allow for custom grouping logic.
-         * currently acts as a pass-through, but ready for virtual folder implementations.
-         */
-        function processGrouping(nodes) {
-            let result = [];
-            nodes.forEach(node => {
-                if(node.type === 'folder') {
-                    // Logic: Skip flattening for deeply nested sensor directories to preserve structure
-                    // For now, we simply recurse.
-                    let children = node.children ? processGrouping(node.children) : [];
-                    result.push({...node, children: children});
-                } else {
-                    result.push(node);
-                }
-            });
-            return result;
-        }
-
-        /**
-         * Creates a DOM element for a single tree node (Folder or File).
-         * Uses recursion for children nodes.
-         */
-        function createTreeNode(node, level, expandAll) {
-            const indent = level * 24;
-            
-            // --- Case 1: Folder Node ---
-            if (node.type.includes('folder')) {
-                const details = document.createElement('details');
-                details.className = "group";
-                if (expandAll) details.open = true;
-                
-                const summary = document.createElement('summary');
-                summary.className = "flex items-center gap-2 py-1.5 px-2 rounded hover:bg-slate-100 tree-row";
-                summary.style.marginLeft = `${indent}px`;
-
-                // Icon & Style Selection
-                let icon = "fa-folder text-yellow-400";
-                let titleClass = "font-bold text-slate-700";
-                
-                // Add description if metadata exists
-                let extraDesc = "";
-                if(fileMetadata[node.name]) {
-                    extraDesc = `<span class="ml-2 text-[10px] text-slate-400 italic font-normal">(${fileMetadata[node.name].desc})</span>`;
-                }
-
-                summary.innerHTML = `
+            summary.innerHTML = `
                     <div class="w-4 text-center"><i class="fa-solid fa-chevron-right text-[10px] text-slate-300 group-open:rotate-90 transition-transform"></i></div>
                     <i class="fa-solid ${icon}"></i>
                     <span class="${titleClass} text-sm">${node.name}</span>
                     ${extraDesc}
                 `;
 
-                details.appendChild(summary);
-                
-                // Render Children Recursively
-                const childrenDiv = document.createElement('div');
-                if(node.children) {
-                    node.children.forEach(child => childrenDiv.appendChild(createTreeNode(child, level + 1, expandAll)));
-                }
-                details.appendChild(childrenDiv);
+            details.appendChild(summary);
 
-                return details;
-            
-            // --- Case 2: File Node ---
-            } else {
-                const div = document.createElement('div');
-                div.className = "flex flex-col md:flex-row md:items-start py-1.5 px-2 rounded hover:bg-slate-50 tree-row gap-1 md:gap-4";
-                div.style.marginLeft = `${indent + 24}px`;
+            const childrenDiv = document.createElement('div');
+            if(node.children) {
+                node.children.forEach(child => childrenDiv.appendChild(createTreeNode(child, level + 1, expandAll)));
+            }
+            details.appendChild(childrenDiv);
 
-                // Determine Icon based on extension
-                let fIcon = "fa-file text-slate-300";
-                if(node.name.includes('csv') || node.name.includes('xlsx')) fIcon = "fa-file-csv text-green-600";
-                if(node.name.includes('pdf')) fIcon = "fa-file-pdf text-red-500";
-                if(node.name.includes('mp4') || node.name.includes('.mjpeg')) fIcon = "fa-file-video text-purple-500";
-                if(node.name.includes('txt') || node.name.includes('.log')) fIcon = "fa-file-lines text-slate-400";
-                if(node.name.includes('jpg') || node.name.includes('.blob')) fIcon = "fa-database text-indigo-500";
-                if(node.name.includes('.xml') || node.name.includes('.db')) fIcon = "fa-code text-orange-500";
+            return details;
 
-                // Metadata Matching Heuristics
-                // Tries to find metadata by exact match, extension match, or partial keyword match
-                let meta = null;
-                
-                // 1. Exact Name Match
-                if (fileMetadata[node.name]) {
-                    meta = fileMetadata[node.name];
-                } 
-                
-                // 2. Extension Match
-                if (!meta) {
-                    const knownExtensions = ['.blob', '.indicies', '.log', '.instructions', '.ortho', '.mjpeg', '.timestamp', '.thumbnails', '.frames', '.xml', '.db', '.txt', '.csv', '.mp4'];
-                    for (const ext of knownExtensions) {
-                        if (node.name.endsWith(ext) && fileMetadata[ext]) {
-                            meta = fileMetadata[ext];
-                            break; 
-                        }
+            // Render File
+        } else {
+            const div = document.createElement('div');
+            div.className = "flex flex-col md:flex-row md:items-start py-1.5 px-2 rounded hover:bg-slate-50 tree-row gap-1 md:gap-4";
+            div.style.marginLeft = `${indent + 24}px`;
+
+            // Extension-based Icon Selection
+            let fIcon = "fa-file text-slate-300";
+            if(node.name.includes('csv') || node.name.includes('xlsx')) fIcon = "fa-file-csv text-green-600";
+            if(node.name.includes('pdf')) fIcon = "fa-file-pdf text-red-500";
+            if(node.name.includes('mp4') || node.name.includes('.mjpeg')) fIcon = "fa-file-video text-purple-500";
+            if(node.name.includes('txt') || node.name.includes('.log')) fIcon = "fa-file-lines text-slate-400";
+            if(node.name.includes('jpg') || node.name.includes('.blob')) fIcon = "fa-database text-indigo-500";
+            if(node.name.includes('.xml') || node.name.includes('.db')) fIcon = "fa-code text-orange-500";
+
+            // Metadata Resolution Strategy: Exact -> Extension -> Partial
+            let meta = null;
+
+            if (fileMetadata[node.name]) {
+                meta = fileMetadata[node.name];
+            }
+
+            if (!meta) {
+                const knownExtensions = ['.blob', '.indicies', '.log', '.instructions', '.ortho', '.mjpeg', '.timestamp', '.thumbnails', '.frames', '.xml', '.db', '.txt', '.csv', '.mp4'];
+                for (const ext of knownExtensions) {
+                    if (node.name.endsWith(ext) && fileMetadata[ext]) {
+                        meta = fileMetadata[ext];
+                        break;
                     }
                 }
+            }
 
-                // 3. Partial Keyword Match
-                if (!meta) {
-                    for (const key in fileMetadata) {
-                        if (node.name.includes(key)) { 
-                            meta = fileMetadata[key];
-                            if(key.length > 2) break; // Avoid matching too short strings
-                        }
+            if (!meta) {
+                for (const key in fileMetadata) {
+                    if (node.name.includes(key)) {
+                        meta = fileMetadata[key];
+                        if(key.length > 2) break;
                     }
                 }
+            }
 
-                let desc = meta ? meta.desc : "";
-                let tag = meta ? meta.tag : (node.name.includes('scenario') ? 'feature' : 'meta');
+            let desc = meta ? meta.desc : "";
+            let tag = meta ? meta.tag : (node.name.includes('scenario') ? 'feature' : 'meta');
 
-                div.innerHTML = `
+            div.innerHTML = `
                     <div class="flex items-center gap-2 min-w-[200px] flex-shrink-0 pt-0.5">
                         <i class="fa-solid ${fIcon}"></i>
                         <span class="text-sm font-mono text-slate-600 truncate">${node.name}</span>
@@ -803,31 +775,31 @@
                         </div>
                     ` : ''}
                 `;
-                return div;
-            }
+            return div;
+        }
+    }
+
+    /**
+     * Renders the Glossary grid view.
+     * @param {Array} data - Glossary items
+     * @param {boolean} forceExpand - Expand accordions by default (used in search)
+     */
+    function renderGlossary(data, forceExpand = false) {
+        const container = document.getElementById('glossary-container');
+        container.innerHTML = '';
+
+        if(data.length === 0) {
+            container.innerHTML = `<div class="text-center text-slate-400 py-12">No terms found matching your query.</div>`;
+            return;
         }
 
-        /**
-         * Renders glossary cards into the grid container.
-         */
-        function renderGlossary(data, forceExpand = false) {
-            const container = document.getElementById('glossary-container');
-            container.innerHTML = '';
+        data.forEach((cat, index) => {
+            const details = document.createElement('details');
+            details.className = "group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden";
 
-            if(data.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-12">No terms found matching your query.</div>`;
-                return;
-            }
+            if(forceExpand) details.open = true;
 
-            data.forEach((cat, index) => {
-                const details = document.createElement('details');
-                details.className = "group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden";
-
-                // Expand first item by default, or all items if searching
-                if(index === 0 || forceExpand) details.open = true;
-
-                // Accordion Header
-                details.innerHTML = `
+            details.innerHTML = `
                     <summary class="flex items-center justify-between p-5 bg-slate-50 cursor-pointer select-none hover:bg-slate-100 transition-colors">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
@@ -839,7 +811,6 @@
                         <i class="fa-solid fa-chevron-down text-slate-400 accordion-arrow transition-transform"></i>
                     </summary>
 
-                    <!-- Accordion Body (Grid Layout) -->
                     <div class="p-5 border-t border-slate-100 bg-white">
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${cat.items.map(item => `
@@ -856,29 +827,27 @@
                         </div>
                     </div>
                 `;
-                container.appendChild(details);
-            });
-        }
+            container.appendChild(details);
+        });
+    }
 
-        /**
-         * Renders scenario cards.
-         * Handles specific color coding for cancelled or special scenarios.
-         */
-        function renderScenarios() {
-            const container = document.getElementById('scenarios-grid');
-            container.innerHTML = '';
+    /**
+     * Renders the Scenario cards.
+     */
+    function renderScenarios() {
+        const container = document.getElementById('scenarios-grid');
+        container.innerHTML = '';
 
-            scenariosData.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col md:flex-row";
-                
-                // Status Color Logic
-                let stripColor = "bg-blue-600";
-                if (!item.active) stripColor = "bg-slate-300";      // Inactive
-                if (item.id === 7) stripColor = "bg-emerald-500";   // Safe/Baseline
-                if (item.id === 1 || item.id === 5) stripColor = "bg-amber-500"; // High Alert
+        scenariosData.forEach(item => {
+            const div = document.createElement('div');
+            div.className = "bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col md:flex-row";
 
-                div.innerHTML = `
+            let stripColor = "bg-blue-600";
+            if (!item.active) stripColor = "bg-slate-300";
+            if (item.id === 7) stripColor = "bg-emerald-500";
+            if (item.id === 1 || item.id === 5) stripColor = "bg-amber-500";
+
+            div.innerHTML = `
                     <div class="w-2 md:w-3 ${stripColor} flex-shrink-0"></div>
                     <div class="p-6 flex-1">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
@@ -889,9 +858,9 @@
                             </div>
                             <span class="font-mono text-xs text-slate-400">${item.code}</span>
                         </div>
-                        
+
                         <p class="text-slate-600 text-sm leading-relaxed mb-4">${item.desc}</p>
-                        
+
                         ${item.active ? `
                         <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div class="flex gap-2 items-start">
@@ -904,53 +873,51 @@
                         </div>` : ''}
                     </div>
                 `;
-                container.appendChild(div);
-            });
+            container.appendChild(div);
+        });
+    }
+
+    /**
+     * Navigates between main application views.
+     * @param {string} view - View ID (explorer, glossary, scenarios)
+     */
+    function switchView(view) {
+        // 1. Hide all views
+        ['view-explorer', 'view-glossary', 'view-scenarios'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+
+        // 2. Show active view
+        const selectedView = document.getElementById('view-' + view);
+        if (selectedView) selectedView.classList.remove('hidden');
+
+        // 3. Update Navigation State
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group";
+        });
+
+        const activeBtn = document.getElementById('nav-' + view);
+        if (activeBtn) {
+            activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group";
         }
 
-        /**
-         * Controls the visibility of main content views.
-         * @param {string} view - The ID suffix of the view to show (explorer, glossary, scenarios)
-         */
-        function switchView(view) {
-            // Hide all views
-            ['view-explorer', 'view-glossary', 'view-scenarios'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            
-            // Show selected view
-            const selectedView = document.getElementById('view-' + view);
-            if (selectedView) selectedView.classList.remove('hidden');
-            
-            // Update Navigation State (Visual feedback)
-            document.querySelectorAll('nav button').forEach(btn => {
-                btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group";
-            });
+        // 4. Update Header
+        const titles = {
+            'explorer': 'File Analysis Dashboard',
+            'glossary': 'Glossary of Terms',
+            'scenarios': 'Simulation Scenarios'
+        };
+        const titleEl = document.getElementById('page-title');
+        if (titleEl) titleEl.innerText = titles[view] || 'Dashboard';
+    }
 
-            // Highlight Active Button
-            const activeBtn = document.getElementById('nav-' + view);
-            if (activeBtn) {
-                activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-500 group";
-            }
-
-            // Update Dynamic Header Title
-            const titles = {
-                'explorer': 'File Analysis Dashboard',
-                'glossary': 'Glossary of Terms',
-                'scenarios': 'Simulation Scenarios'
-            };
-            const titleEl = document.getElementById('page-title');
-            if (titleEl) titleEl.innerText = titles[view] || 'Dashboard';
-        }
-
-        // Init App
+    // Initialize application once DOM is ready
+    if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
-        
-        // Fallback for cases where DOMContentLoaded might have already fired
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            init();
-        }
-    </script>
+    } else {
+        init();
+    }
+</script>
 </body>
 </html>
