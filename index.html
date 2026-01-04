@@ -347,57 +347,57 @@
         {
             id: 1,
             code: "CHSLY FOUR",
-            title: "Traffic Compression",
-            desc: "Pilots operate in dense traffic flow. The leading aircraft slows down unexpectedly or traffic separation reduces critically.",
-            goal: "Situational Awareness and Energy Management. Requires early detection and use of speed brakes or configuration changes to maintain safe separation.",
+            title: "Traffic Compression & Energy Management",
+            desc: "Simulates traffic merging at the CHSLY waypoint with significant profile changes from ATC, such as maintaining, increasing, or decreasing speed and being vectored off-profile. It represents a high energy demand scenario for the 737-800, requiring drag devices between CHSLY and NODEW.",
+            goal: "Evaluate proactive energy management and response to late runway changes (to RWY 18L) and 'direct to' clearances designed to modulate traffic flow.",
             active: true
         },
         {
             id: 2,
             code: "FILPZ THREE",
-            title: "Unanticipated Tailwind",
-            desc: "Encountering a much stronger tailwind than briefed on the approach line. This increases Ground Speed and makes staying on the glide path difficult.",
-            goal: "Managing high Vertical Speed (V/S), keeping engines at idle, and deciding to Go-Around if 'Stabilized Approach' criteria are lost.",
+            title: "Convective Weather",
+            desc: "Features a moving thunderstorm front north of the arrival track, accompanied by radar attenuation (amber arcs) and ambiguous cues from preceding aircraft regarding weather penetration. Includes reports of windshear, turbulence, and gusts affecting landing restrictions.",
+            goal: "Assess decision-making regarding weather avoidance, such as requesting a divert or holding at PHAYE/FILPZ, and briefing for approach hazards.",
             active: true
         },
         {
             id: 3,
             code: "BANKR TWO",
-            title: "Routine Operational Challenges",
-            desc: "Includes unexpected system warnings or ATC instruction changes during the BANKR arrival route, increasing pilot workload.",
-            goal: "Procedural compliance and task prioritization.",
+            title: "Unanticipated Tailwinds & Autoflight Issues",
+            desc: "Involves encountering tailwinds that differ from Flight Management Computer predictions, affecting aircraft spacing. Includes an autoflight failure where the autopilot fails to initiate a programmed turn at DEBBT, along with simulated pilot readback errors.",
+            goal: "Monitor and mitigate spacing issues through energy management and ATC communication, and manually intervene to correct trajectory during autoflight failures.",
             active: true
         },
         {
             id: 4,
-            code: "CANCELLED",
-            title: "Excluded Scenario",
-            desc: "This scenario was cancelled during the experiment protocol due to time constraints and is not included in the dataset.",
+            code: "JONZE TWO",
+            title: "Cancelled Scenario",
+            desc: "This scenario was not included in the data collection due to experiment protocol time limitations.",
             goal: "N/A",
             active: false
         },
         {
             id: 5,
             code: "MLLET TWO",
-            title: "Wake Turbulence",
-            desc: "Approaching behind a 'Heavy' category aircraft (e.g., A330, B777). Invisible wingtip vortices cause sudden upset/shaking.",
-            goal: "Upset Recovery (regaining control) and Go-Around decision. Measures pilot 'Expectancy'.",
+            title: "Wake Turbulence & Communication Errors",
+            desc: "Simulates a wake encounter behind heavy aircraft (e.g., A321, A330) with associated roll upsets and speed loss. Includes an intentional ATC hearback/readback error regarding altitude constraints at MLLET.",
+            goal: "Anticipate wake turbulence based on ATC communications and traffic flight paths, and identify/correct incorrect altitude clearances from ATC.",
             active: true
         },
         {
             id: 6,
             code: "STOCR THREE",
-            title: "Energy Mgmt & Icing Risk",
-            desc: "Scenario configured with probable icing conditions or altitude/speed constraints requiring strict energy management on the STOCR route.",
-            goal: "Timely use of Anti-ice systems and correct descent planning.",
+            title: "High Workload & Airport Flipping",
+            desc: "Focuses on high workload management during complex FMS entries for outbound radials and a sudden 'flipping the airport' situation where wind changes force a shift from South to North flow operations.",
+            goal: "Manage temporal demands and mitigate challenges of clearance compliance under rapidly changing operational conditions.",
             active: true
         },
         {
             id: 7,
             code: "PARQR THREE",
             title: "Familiarization (Baseline)",
-            desc: "A baseline scenario applied at the beginning of the experiment. It contains no major surprises or emergencies.",
-            goal: "Acclimatization to simulator dynamics and sensor equipment (EEG cap, glasses, etc.). Used as a reference for 'normal operations'.",
+            desc: "A nominal scenario designed to allow pilots to acclimate to simulator controls and the research environment.",
+            goal: "Provide a baseline for performance and allow for test conductor interaction/questions.",
             active: true
         }
     ];
