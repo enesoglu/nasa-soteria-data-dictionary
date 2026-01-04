@@ -149,6 +149,16 @@
             </div>
         </button>
 
+        <!-- Download / AWS Tab -->
+        <button onclick="switchView('aws')" id="nav-aws" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all group">
+            <i class="fa-brands fa-aws w-5 text-center text-orange-500"></i>
+            <div class="text-left">
+                <span class="font-bold text-sm block">AWS Data Access</span>
+                <span class="text-[10px] text-slate-500 group-hover:text-slate-300 font-normal">AWS CLI Guide</span>
+            </div>
+        </button>
+
+        <!-- Source Paper Tab -->
         <a href="https://doi.org/10.1038/s41597-025-05336-7" target="_blank" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 transition-all group mt-4 border border-slate-800 hover:border-emerald-900">
             <i class="fa-solid fa-file-contract w-5 text-center"></i>
             <div class="text-left">
@@ -220,6 +230,64 @@
                 <p class="text-slate-500 text-sm mt-2">All scenarios are based on Charlotte Douglas International Airport (KCLT) arrival routes. In the SOTERIA experiments, the order of scenarios was randomized across crews to minimize learning effects.</p>
             </div>
             <div class="space-y-6" id="scenarios-grid"></div>
+        </div>
+
+        <!-- VIEW: Download -->
+        <div id="view-aws" class="max-w-4xl mx-auto hidden fade-in">
+            <div class="mb-8 border-b border-slate-200 pb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Accessing the Data Lake</h2>
+                <p class="text-slate-600 text-sm mt-2">The SOTERIA dataset is hosted on the <strong>AWS Registry of Open Data</strong>. You can access it without an AWS account using the <code>--no-sign-request</code> flag.</p>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-terminal"></i> AWS CLI
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-slate-600 mb-4">Downloading the entire dataset or specific folders via terminal.</p>
+
+                    <div class="mb-4">
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-1">List Files</label>
+                        <div class="bg-slate-900 rounded-lg p-3 group relative">
+                            <code class="font-mono text-emerald-400 text-xs break-all">aws s3 ls s3://nasa-soteria-data/ --no-sign-request</code>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-1">Download Specific File</label>
+                        <div class="bg-slate-900 rounded-lg p-3 group relative">
+                            <code class="font-mono text-blue-300 text-xs break-all">aws s3 cp s3://nasa-soteria-data/soteria-survey-data.xlsx . --no-sign-request</code>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-1">Sync Entire Bucket (Bulk Download - ~1.5TB as of Jan 2026)</label>
+                        <div class="bg-slate-900 rounded-lg p-3 group relative">
+                            <code class="font-mono text-orange-300 text-xs break-all">aws s3 sync s3://nasa-soteria-data/ ./local_folder --no-sign-request</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="https://registry.opendata.aws/soteria/" target="_blank" class="p-4 border border-slate-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all bg-white group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-700">AWS Registry Page</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400"></i>
+                    </div>
+                    <p class="text-xs text-slate-500">View the official dataset landing page on AWS.</p>
+                </a>
+
+                <a href="https://github.com/nasa/nasa-soteria-processing-code/" target="_blank" class="p-4 border border-slate-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all bg-white group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-700">Preprocessing Code</span>
+                        <i class="fa-brands fa-github text-xs text-slate-400"></i>
+                    </div>
+                    <p class="text-xs text-slate-500">Official Python scripts for cleaning and organizing the raw data.</p>
+                </a>
+            </div>
         </div>
 
     </div>
@@ -902,7 +970,7 @@
      */
     function switchView(view) {
         // 1. Hide all views
-        ['view-explorer', 'view-glossary', 'view-scenarios'].forEach(id => {
+        ['view-explorer', 'view-glossary', 'view-scenarios', 'view-aws'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         });
@@ -925,7 +993,8 @@
         const titles = {
             'explorer': 'File Analysis Dashboard',
             'glossary': 'Glossary of Terms',
-            'scenarios': 'Simulation Scenarios'
+            'scenarios': 'Simulation Scenarios',
+            'aws': 'AWS Data Access'
         };
         const titleEl = document.getElementById('page-title');
         if (titleEl) titleEl.innerText = titles[view] || 'Dashboard';
