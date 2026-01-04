@@ -242,6 +242,13 @@
             "Analysis_eeg_electrode_quality_vector.xlsx": { desc: "CLEANING & MASK - EEG Signal Quality Mask: Matrix indicating the signal quality for each electrode (F3, Fz, etc.) per scenario. Values: 0 (Bad/Noisy), 1 (Marginal), 2 (Good).", tag: "clean" },
             "Analysis_ekg_quality_vector.xlsx": { desc: "CLEANING & MASK - EKG Validity Intervals: Specifies the valid time windows (e.g., \"76:80\" seconds) where the heart rate signal is reliable. Crucial for excluding noisy segments during training.", tag: "clean" },
 
+            // Crew_XX Folder
+            "Synched": { desc: "Raw synched files", tag: "raw" },
+            "Processing": { desc: "Exported log files (Synched)" },
+            "Figures": { desc: "Checks.", tag: "meta" },
+            "EventReport": { desc: "Contains ASAP (Aviation Safety Action Program) style reports. Includes both 'draft_1' (immediate) and 'draft_2' (post-video-review) text files.", tag: "meta" },
+            "DVR": { desc: "Raw video files", tag: "raw" },
+
             // Sensors & Hardware Definitions
             "ABM": { desc: "ABM B-Alert X10 (EEG). Brainwaves & Cognitive State.", tag: "raw" },
             "Emp_Emp": { desc: "Empatica E4 (Wrist). Physiological Sensors. WARNING: High rate of data loss due to Bluetooth dropouts (freq: ~30%). Check presence matrix.", tag: "raw" },
@@ -293,9 +300,7 @@
             "ifd_cockpit_.csv": { desc: "Flight Context: Simulation telemetry (Altitude, Speed, Control Inputs) providing environmental context to correlate physiological responses with flight maneuvers.", tag: "feature" },
             "crew_info.txt": { desc: "Demographics: Age, Gender, Flight Hours. (Crew 12 excluded from aggregate stats).", tag: "meta" },
             "trial_settings.txt": { desc: "Scenario Map.", tag: "meta" },
-            "EventReport": { desc: "Event Markers: Time-series vector intended for marking critical external events (e.g., system failures).", tag: "meta" },
             "DVR_File.mp4": { desc: "Integrated flight videos: Synchronized cockpit view.", tag: "raw" },
-            "Figures": { desc: "Checks.", tag: "meta" },
             "eventreport.txt": { desc: "Qualitative Data: Pilot's self-critique of the safety event. Compare Draft 1 vs. Draft 2 to analyze resilience/awareness.", tag: "target" },
         };
 
