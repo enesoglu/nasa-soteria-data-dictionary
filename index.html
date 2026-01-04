@@ -319,13 +319,15 @@
             icon: "fa-heart-pulse",
             color: "text-rose-500",
             items: [
-                { term: "Tonic EDA / SCL", code: "eda_scl", desc: "Baseline Skin Conductance Level; indicates general arousal/stress state." },
-                { term: "Phasic EDA / SCR", code: "eda_scr", desc: "Skin Conductance Response to immediate stimuli (e.g., ATC commands)." },
-                { term: "Index of Cognitive Activity", code: "ICA", desc: "Pupil dilation metric independent of light reflex; measures mental workload." },
-                { term: "Inter-Beat Interval (IBI)", code: "IBI", desc: "Time interval between heartbeats; raw source for HRV analysis." },
-                { term: "Gaze Vector", code: "gaze_x, gaze_y", desc: "Coordinates of visual focus; determines scan pattern efficiency." },
-                { term: "PSD (Theta/Alpha/Beta)", code: "PSD_Ch_xx", desc: "Power Spectral Density of EEG bands; correlates with fatigue and engagement." },
-                { term: "Pupil Diameter", code: "PUPIL_DIAM", desc: "Raw pupil size; dilates involuntarily under high cognitive load." }
+                { term: "Tonic EDA / SCL", code: "eda_scl", desc: "Baseline Skin Conductance Level; indicates general arousal/stress state. Collected via Empatica E4 at 4 Hz." },
+                { term: "Phasic EDA / SCR", code: "eda_scr", desc: "Skin Conductance Response to immediate stimuli. Collected via Empatica E4 at 4 Hz." },
+                { term: "Index of Cognitive Activity", code: "ICA", desc: "Pupil dilation metric independent of light reflex; measures mental workload. Derived from SmartEye (60 Hz)." },
+                { term: "Inter-Beat Interval (IBI)", code: "IBI", desc: "Time interval between heartbeats. Sampled at 64 Hz via Empatica E4 or derived from ABM ECG (256 Hz)." },
+                { term: "Gaze Vector", code: "gaze_x, gaze_y", desc: "Coordinates of visual focus; determines scan pattern efficiency. Collected via SmartEye Pro DX at 60 Hz." },
+                { term: "PSD (Theta/Alpha/Beta)", code: "PSD_Ch_xx", desc: "Power Spectral Density of EEG bands; correlates with fatigue. Collected via ABM B-Alert X10 at 256 Hz." },
+                { term: "Pupil Diameter", code: "PUPIL_DIAM", desc: "Raw pupil size; dilates involuntarily under high cognitive load. Collected via SmartEye at 60 Hz." },
+                { term: "Wrist Accelerometer", code: "ACC_X/Y/Z", desc: "3-Axis movement data used for activity recognition. Collected via Empatica E4 at 32 Hz."},
+                { term: "Skin Temperature", code: "TEMP", desc: "Peripheral skin temperature measurement. Collected via Empatica E4 at 1 Hz."},
             ]
         },
         {
