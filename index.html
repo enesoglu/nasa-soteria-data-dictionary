@@ -226,6 +226,7 @@
         // Metadata mapping for file enrichment (Descriptions, Badges)
     const fileMetadata = {
             // Root & Docs
+            "Crew_XX [Generic Structure for Crew folder of 12]": { desc: "Root folder for a specific flight crew. NOTE: Crew 12 data is not present" },
             "soteria-survey-data.xlsx": { desc: "Subjective Survey Data (NASA-TLX). Ground Truth for workload.", tag: "target" },
             "Appendices_HC2S-SOTERIA-Study.pdf": { desc: "Study Protocol, IRB Approval, and Experiment Design Docs.", tag: "meta" },
 
@@ -288,12 +289,12 @@
             "emp_ibi_.csv": { desc: "Physiological (IBI): Inter-Beat Intervals extracted from BVP, essential for precise stress analysis via HRV time-domain metrics.", tag: "feature" },
             "emp_temp_.csv": { desc: "Physiological (TEMP): Peripheral skin temperature data, serving as a secondary biosignal for stress and comfort assessment.", tag: "feature" },
             "ifd_cockpit_.csv": { desc: "Flight Context: Simulation telemetry (Altitude, Speed, Control Inputs) providing environmental context to correlate physiological responses with flight maneuvers.", tag: "feature" },
-            "crew_info.txt": { desc: "Demographics.", tag: "meta" },
+            "crew_info.txt": { desc: "Demographics: Age, Gender, Flight Hours. (Crew 12 excluded from aggregate stats).", tag: "meta" },
             "trial_settings.txt": { desc: "Scenario Map.", tag: "meta" },
             "EventReport": { desc: "Event Markers: Time-series vector intended for marking critical external events (e.g., system failures).", tag: "meta" },
             "DVR_File.mp4": { desc: "Integrated flight videos: Synchronized cockpit view.", tag: "raw" },
             "Figures": { desc: "Checks.", tag: "meta" },
-            "eventreport.txt": { desc: "Written reports describing technical failures.", tag: "meta" }
+            "eventreport.txt": { desc: "Qualitative Data: Pilot's self-critique of the safety event. Compare Draft 1 vs. Draft 2 to analyze resilience/awareness.", tag: "target" },
         };
 
     // Terminology definitions for the Glossary View
